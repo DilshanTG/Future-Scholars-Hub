@@ -156,7 +156,7 @@ const fetchPayments = async () => {
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Student</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Grade</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Status</th>
-                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Payment</th>
+                <th className="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Payment</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -178,20 +178,13 @@ const fetchPayments = async () => {
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={r.paymentStatus === 'paid'}
-                        onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                        className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-6' : 'translate-x-1'}`} />
-                      </button>
-                      <Badge className={`text-xs font-medium ${r.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                        {r.paymentStatus === 'paid' ? '✅ Paid' : '⏳ Pending'}
-                      </Badge>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                      className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
+                    >
+                      <span className={`pointer-events-none block h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-7' : 'translate-x-1'}`} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -211,13 +204,10 @@ const fetchPayments = async () => {
                   <button
                     type="button"
                     onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                    className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
+                    className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
                   >
-                    <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <span className={`pointer-events-none block h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-7' : 'translate-x-1'}`} />
                   </button>
-                  <Badge className={`text-xs ${r.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                    {r.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
-                  </Badge>
                 </div>
               </div>
             ))}
