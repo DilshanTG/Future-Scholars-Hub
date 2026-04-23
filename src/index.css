@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 96%;
+    --foreground: 220 25% 23%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 23%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 23%;
+    --primary: 244 100% 69%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 122 39% 49%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 93%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 344 100% 69%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 244 100% 69%;
+    --radius: 1rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #6C63FF 0%, #8B85FF 100%);
+  }
+
+  .gradient-welcome {
+    background: linear-gradient(135deg, #6C63FF 0%, #FF6584 100%);
+  }
+}
