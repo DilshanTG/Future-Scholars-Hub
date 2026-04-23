@@ -23,6 +23,11 @@ export default function StudentAddPage() {
   })
 
   const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }))
+  
+  const setMobile = (v: string) => {
+    const cleaned = v.replace(/\D/g, '').substring(0, 10)
+    setForm((f) => ({ ...f, mobile: cleaned }))
+  }
 
   const handleGenderChange = (v: string) => {
     setForm((f) => ({ ...f, gender: v as 'Male' | 'Female' | 'Other', avatar: getRandomAvatar(v) }))
@@ -30,6 +35,11 @@ export default function StudentAddPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (form.mobile.length !== 10) {
+      toast.error('Mobile number must be exactly 10 digits')
+      setSaving(false)
+      return
+    }
     setSaving(true)
 
     const { data, error } = await supabase.functions.invoke('create-student', {
@@ -72,7 +82,16 @@ export default function StudentAddPage() {
           </div>
           <div className="space-y-2">
             <Label>Mobile Number *</Label>
-            <Input value={form.mobile} onChange={(e) => set('mobile', e.target.value)} required className="rounded-xl" placeholder="07XXXXXXXX" type="tel" />
+            <Input 
+              value={form.mobile} 
+              onChange={(e) => setMobile(e.target.value)} 
+              required 
+              className="rounded-xl" 
+              placeholder="07XXXXXXXX" 
+              type="tel"
+              maxLength={10}
+            />
+            <p className="text-[10px] text-muted-foreground px-1">Exactly 10 digits required (e.g. 0771234567)</p>
           </div>
           <div className="space-y-2">
             <Label>Grade *</Label>

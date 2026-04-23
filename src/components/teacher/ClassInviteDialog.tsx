@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { format } from 'date-fns'
 import { supabase } from '@/lib/supabase'
-import { Copy, MessageCircle } from 'lucide-react'
+import { Copy, MessageCircle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Class } from '@/types'
 
@@ -24,6 +24,19 @@ interface StudentAssigned {
 export function ClassInviteDialog({ open, onOpenChange, currentClass }: ClassInviteDialogProps) {
   const [students, setStudents] = useState<StudentAssigned[]>([])
   const [loading, setLoading] = useState(true)
+  const [sentInvites, setSentInvites] = useState<Record<string, boolean>>({})
+
+  useEffect(() => {
+    // Load sent invites from localStorage
+    const saved = localStorage.getItem('fsh_sent_invites')
+    if (saved) {
+      try {
+        setSentInvites(JSON.parse(saved))
+      } catch (e) {
+        console.error('Failed to parse sent invites', e)
+      }
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open || !currentClass) return
@@ -81,11 +94,24 @@ _See you there!_ ✨`
 
   const handleWhatsApp = (student: StudentAssigned) => {
     const text = encodeURIComponent(getMessage(student.name))
-    // Remove any non-numeric characters from the mobile number just in case
-    const phone = student.mobile.replace(/\D/g, '')
-    // WhatsApp URL scheme
+    
+    // Normalize to SL format (+94)
+    // Assuming student.mobile is like '0771234567' or '771234567'
+    let phone = student.mobile.replace(/\D/g, '')
+    if (phone.startsWith('0')) {
+      phone = '94' + phone.substring(1)
+    } else if (!phone.startsWith('94')) {
+      phone = '94' + phone
+    }
+
     const url = `https://wa.me/${phone}?text=${text}`
     window.open(url, '_blank')
+
+    // Mark as sent
+    const key = `${currentClass.id}_${student.id}`
+    const newSent = { ...sentInvites, [key]: true }
+    setSentInvites(newSent)
+    localStorage.setItem('fsh_sent_invites', JSON.stringify(newSent))
   }
 
   return (
@@ -143,14 +169,23 @@ _See you there!_ ✨`
                       <p className="font-medium text-gray-800 text-sm">{student.name}</p>
                       <p className="text-xs text-gray-500 mt-0.5 font-mono">{student.mobile}</p>
                     </div>
-                    <Button
-                      onClick={() => handleWhatsApp(student)}
-                      size="sm"
-                      className="rounded-full bg-green-500 hover:bg-green-600 shadow-sm h-9 px-3 shrink-0"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-1.5" />
-                      Send
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {sentInvites[`${currentClass.id}_${student.id}`] && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                      <Button
+                        onClick={() => handleWhatsApp(student)}
+                        size="sm"
+                        className={`rounded-full shadow-sm h-9 px-3 shrink-0 ${
+                          sentInvites[`${currentClass.id}_${student.id}`]
+                            ? 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-1.5" />
+                        {sentInvites[`${currentClass.id}_${student.id}`] ? 'Resend' : 'Send'}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

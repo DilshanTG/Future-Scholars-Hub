@@ -30,10 +30,21 @@ export default function StudentEditPage() {
 
   const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }))
 
+  const setMobile = (v: string) => {
+    const cleaned = v.replace(/\D/g, '').substring(0, 10)
+    setForm((f) => ({ ...f, mobile: cleaned }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (form.mobile && form.mobile.length !== 10) {
+      toast.error('Mobile number must be exactly 10 digits')
+      setSaving(false)
+      return
+    }
     setSaving(true)
     const { error } = await supabase.from('students').update({
+      mobile: form.mobile,
       name: form.name,
       grade: form.grade,
       gender: form.gender,
@@ -72,8 +83,14 @@ export default function StudentEditPage() {
             <Input value={form.name ?? ''} onChange={(e) => set('name', e.target.value)} required className="rounded-xl" />
           </div>
           <div className="space-y-2">
-            <Label>Mobile</Label>
-            <Input value={form.mobile ?? ''} disabled className="rounded-xl bg-gray-50" />
+            <Label>Mobile Number *</Label>
+            <Input 
+              value={form.mobile ?? ''} 
+              onChange={(e) => setMobile(e.target.value)} 
+              required 
+              className="rounded-xl" 
+              maxLength={10}
+            />
           </div>
           <div className="space-y-2">
             <Label>Grade *</Label>
