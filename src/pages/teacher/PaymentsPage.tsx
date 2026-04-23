@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
+import { StatCard } from '@/components/shared/StatCard'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
@@ -33,7 +34,7 @@ export default function PaymentsPage() {
 
   const years = Array.from({ length: 5 }, (_, i) => (now.getFullYear() - 2 + i).toString())
 
-  const fetchPayments = async () => {
+const fetchPayments = async () => {
     setLoading(true)
     const [{ data: students }, { data: payments }] = await Promise.all([
       supabase.from('students').select('*').eq('archived', false).order('name'),
@@ -47,7 +48,6 @@ export default function PaymentsPage() {
     }))
     setRows(enriched)
 
-    // Extract distinct grades
     const distinctGrades = [...new Set((students ?? []).map((s) => s.grade))].sort()
     setGrades(distinctGrades)
     setLoading(false)
@@ -55,33 +55,24 @@ export default function PaymentsPage() {
 
   useEffect(() => { fetchPayments() }, [month, year])
 
-  const filtered = rows.filter((r) => {
-    const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.mobile.includes(search)
-    const matchGrade = gradeFilter === 'all' || r.grade === gradeFilter
-    const matchStatus = statusFilter === 'all' || r.status === statusFilter
-    const matchPayment = paymentFilter === 'all' || r.paymentStatus === paymentFilter
-    return matchSearch && matchGrade && matchStatus && matchPayment
-  })
-
-  const togglePayment = async (studentId: string, newStatus: 'paid' | 'unpaid') => {
-    setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, loadingPayment: true } : r))
-    const { error } = await supabase.from('payments').upsert({
-      student_id: studentId, month, year: parseInt(year),
-      status: newStatus, updated_at: new Date().toISOString(),
-    }, { onConflict: 'student_id,month,year' })
-    if (error) {
-      toast.error('Failed to update payment')
-      setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, loadingPayment: false } : r))
-    } else {
-      setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, paymentStatus: newStatus, loadingPayment: false } : r))
-    }
-  }
-
   const paidCount = filtered.filter((r) => r.paymentStatus === 'paid').length
+  const unpaidCount = filtered.filter((r) => r.paymentStatus === 'unpaid').length
 
   return (
     <div>
-      <PageHeader title="Payments" subtitle={`${paidCount}/${filtered.length} paid · ${month} ${year}`} />
+      <PageHeader title="Payments" subtitle={`${month} ${year}`} />
+
+      {loading ? (
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <Skeleton className="h-28 rounded-2xl" />
+          <Skeleton className="h-28 rounded-2xl" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <StatCard emoji="💰" label="Collected" value={paidCount} color="#22C55E" />
+          <StatCard emoji="⏳" label="Pending" value={unpaidCount} color="#F59E0B" />
+        </div>
+      )}
 
       {/* Period selectors */}
       <div className="flex flex-wrap gap-2 mb-3">
