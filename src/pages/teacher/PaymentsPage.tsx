@@ -55,6 +55,14 @@ const fetchPayments = async () => {
 
   useEffect(() => { fetchPayments() }, [month, year])
 
+  const filtered = rows.filter((r) => {
+    const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.mobile.includes(search)
+    const matchGrade = gradeFilter === 'all' || r.grade === gradeFilter
+    const matchStatus = statusFilter === 'all' || r.status === statusFilter
+    const matchPayment = paymentFilter === 'all' || r.paymentStatus === paymentFilter
+    return matchSearch && matchGrade && matchStatus && matchPayment
+  })
+
   const paidCount = filtered.filter((r) => r.paymentStatus === 'paid').length
   const unpaidCount = filtered.filter((r) => r.paymentStatus === 'unpaid').length
 
