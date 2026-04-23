@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
+import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
 import { format, isPast } from 'date-fns'
 import type { Class, Announcement } from '@/types'
 
@@ -66,6 +67,9 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-4">
+      {/* Announcement popup — shows for new/unread announcements */}
+      <AnnouncementPopup announcements={announcements} />
+
       {/* Welcome banner */}
       <div className="gradient-welcome rounded-2xl p-6 text-white">
         <div className="flex items-center gap-3">

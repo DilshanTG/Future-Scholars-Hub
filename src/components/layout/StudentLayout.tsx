@@ -51,7 +51,7 @@ export default function StudentLayout() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🎓</span>
-            <span className="font-bold text-gray-800 hidden sm:block">Future Scholars Hub</span>
+            <span className="font-bold text-gray-800">Future Scholars Hub</span>
           </div>
 
           <div className="hidden lg:flex items-center gap-1">

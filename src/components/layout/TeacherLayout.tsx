@@ -53,7 +53,7 @@ export default function TeacherLayout() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <span className="text-2xl">🎓</span>
-            <span className="font-bold text-gray-800 hidden sm:block">Future Scholars Hub</span>
+            <span className="font-bold text-gray-800">Future Scholars Hub</span>
           </div>
 
           {/* Desktop Nav */}

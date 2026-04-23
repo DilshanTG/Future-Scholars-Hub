@@ -1,28 +1,64 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { MoreHorizontal } from 'lucide-react'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { format } from 'date-fns'
+import { toast } from 'sonner'
 import type { Announcement } from '@/types'
 
 export default function AnnouncementsHistoryPage() {
   const [items, setItems] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    supabase
+  const fetchAll = async () => {
+    setLoading(true)
+
+    // Step 1: fetch all announcements
+    const { data: anns, error } = await supabase
       .from('announcements')
-      .select('*, announcement_assignments(student_id)')
+      .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setItems((data ?? []).map((a) => ({
-          ...a,
-          is_all: (a.announcement_assignments ?? []).some((aa: { student_id: string | null }) => aa.student_id === null),
-        })))
-        setLoading(false)
-      })
-  }, [])
+
+    if (error) { toast.error('Failed to load: ' + error.message); setLoading(false); return }
+    if (!anns || anns.length === 0) { setItems([]); setLoading(false); return }
+
+    // Step 2: fetch all assignments for these announcements
+    const ids = anns.map((a) => a.id)
+    const { data: assignments } = await supabase
+      .from('announcement_assignments')
+      .select('announcement_id, student_id')
+      .in('announcement_id', ids)
+
+    // Build a lookup: announcement_id → is_all
+    const assignmentMap = new Map<string, boolean>()
+    for (const row of (assignments ?? [])) {
+      if (row.student_id === null) assignmentMap.set(row.announcement_id, true)
+      else if (!assignmentMap.has(row.announcement_id)) assignmentMap.set(row.announcement_id, false)
+    }
+
+    setItems(anns.map((a) => ({ ...a, is_all: assignmentMap.get(a.id) ?? false })))
+    setLoading(false)
+  }
+
+  useEffect(() => { fetchAll() }, [])
+
+  const handleDelete = async () => {
+    if (!deleteId) return
+    setDeleting(true)
+    const { error } = await supabase.from('announcements').delete().eq('id', deleteId)
+    setDeleting(false); setDeleteId(null)
+    if (error) toast.error('Failed to delete')
+    else { toast.success('Deleted'); fetchAll() }
+  }
 
   const now = new Date()
 
@@ -32,36 +68,59 @@ export default function AnnouncementsHistoryPage() {
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
       ) : items.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📋</p><p>No announcements</p></div>
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="text-4xl mb-2">📋</p>
+          <p>No announcements yet</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((a) => {
             const expired = a.expire_date ? new Date(a.expire_date) < now : false
             return (
-              <div key={a.id} className={`bg-white rounded-2xl shadow-sm p-4 ${expired ? 'opacity-60' : ''}`}>
-                <div className="flex items-start gap-3">
+              <div key={a.id} className={`bg-white rounded-2xl shadow-sm p-4 transition-opacity ${expired ? 'opacity-60' : ''}`}>
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <h3 className="font-semibold text-gray-800">{a.title}</h3>
-                      <Badge className={a.is_all ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>
-                        {a.is_all ? 'All' : 'Specific'}
+                      <Badge className={a.is_all ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' : 'bg-purple-100 text-purple-700 hover:bg-purple-100'}>
+                        {a.is_all ? '👥 All' : '🎯 Specific'}
                       </Badge>
-                      {expired && <Badge className="bg-gray-100 text-gray-500">Expired</Badge>}
+                      {expired && <Badge className="bg-gray-100 text-gray-500 hover:bg-gray-100">Expired</Badge>}
                       {a.expire_date && !expired && (
                         <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">
                           Expires {format(new Date(a.expire_date), 'PP')}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">{a.message}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{a.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">{format(new Date(a.created_at), 'PPp')}</p>
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg shrink-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl">
+                      <DropdownMenuItem onClick={() => navigate(`/teacher/announcements/${a.id}/edit`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(a.id)}>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             )
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(o) => !o && setDeleteId(null)}
+        title="Delete Announcement"
+        description="This will permanently delete the announcement."
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </div>
   )
 }

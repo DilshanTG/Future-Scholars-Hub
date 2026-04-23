@@ -22,16 +22,30 @@ export default function AnnouncementsPage() {
   const fetchAnnouncements = async () => {
     setLoading(true)
     const now = new Date().toISOString()
-    const { data } = await supabase
+
+    // Fetch active announcements (not expired)
+    const { data: anns, error } = await supabase
       .from('announcements')
-      .select('*, announcement_assignments(count, student_id)')
+      .select('*')
       .or(`expire_date.is.null,expire_date.gt.${now}`)
       .order('created_at', { ascending: false })
 
-    setItems((data ?? []).map((a) => {
-      const isAll = (a.announcement_assignments ?? []).some((aa: { student_id: string | null }) => aa.student_id === null)
-      return { ...a, is_all: isAll, specific_count: a.announcement_assignments?.[0]?.count ?? 0 }
-    }))
+    if (error) { toast.error('Failed to load'); setLoading(false); return }
+    if (!anns || anns.length === 0) { setItems([]); setLoading(false); return }
+
+    // Fetch assignments separately to determine all-vs-specific
+    const { data: assignments } = await supabase
+      .from('announcement_assignments')
+      .select('announcement_id, student_id')
+      .in('announcement_id', anns.map((a) => a.id))
+
+    const assignmentMap = new Map<string, boolean>()
+    for (const row of (assignments ?? [])) {
+      if (row.student_id === null) assignmentMap.set(row.announcement_id, true)
+      else if (!assignmentMap.has(row.announcement_id)) assignmentMap.set(row.announcement_id, false)
+    }
+
+    setItems(anns.map((a) => ({ ...a, is_all: assignmentMap.get(a.id) ?? false })))
     setLoading(false)
   }
 
@@ -53,14 +67,19 @@ export default function AnnouncementsPage() {
         action={
           <div className="flex gap-2">
             <Button asChild variant="outline" className="rounded-pill"><Link to="/teacher/announcements/history">History</Link></Button>
-            <Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]"><Link to="/teacher/announcements/add"><Plus className="h-4 w-4 mr-1" />Add</Link></Button>
+            <Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
+              <Link to="/teacher/announcements/add"><Plus className="h-4 w-4 mr-1" />Add</Link>
+            </Button>
           </div>
         }
       />
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
       ) : items.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📢</p><p>No active announcements</p></div>
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="text-4xl mb-2">📢</p>
+          <p>No active announcements</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((a) => (
@@ -69,8 +88,8 @@ export default function AnnouncementsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <h3 className="font-semibold text-gray-800">{a.title}</h3>
-                    <Badge className={a.is_all ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}>
-                      {a.is_all ? 'All Students' : 'Specific'}
+                    <Badge className={a.is_all ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' : 'bg-purple-100 text-purple-700 hover:bg-purple-100'}>
+                      {a.is_all ? '👥 All Students' : '🎯 Specific'}
                     </Badge>
                     {a.expire_date && (
                       <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">
@@ -95,7 +114,7 @@ export default function AnnouncementsPage() {
           ))}
         </div>
       )}
-      <ConfirmDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} title="Delete Announcement" description="This will delete the announcement permanently." onConfirm={handleDelete} loading={deleting} />
+      <ConfirmDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} title="Delete Announcement" description="This will permanently delete the announcement." onConfirm={handleDelete} loading={deleting} />
     </div>
   )
 }
