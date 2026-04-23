@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes - Future Scholars Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .note-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            background: white;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .note-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid px-0">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg dashboard-header">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-primary fs-4" href="/student/dashboard">🎓 Future Scholars</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-2">
+                        <li class="nav-item"><a class="nav-link" href="/student/dashboard">Dashboard 🏠</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/classes">Classes 📚</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/recordings">Recordings 🎥</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/student/notes">Notes 📝</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/announcements">News 📢</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/payment">Payment 💳</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/profile">Profile 👤</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout 🚪</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+            <h2 class="fw-bold mb-4 px-2">My Notes 📝</h2>
+
+            <div class="row">
+                <repeat group="{{ @notes }}" value="{{ @note }}">
+                    <div class="col-md-6 mb-3">
+                        <div class="card note-card h-100">
+                            <div class="card-body p-4">
+                                <h5 class="card-title fw-bold mb-2">{{ @note.title }}</h5>
+                                <check if="{{ @note.details }}">
+                                    <true>
+                                        <p class="card-text text-muted mb-3">{{ @note.details }}</p>
+                                    </true>
+                                </check>
+
+                                <check if="{{ @note.link }}">
+                                    <true>
+                                        <a href="{{ @note.link }}" target="_blank"
+                                            class="btn btn-light btn-sm w-100 mb-3 text-truncate fw-bold text-primary">
+                                            🔗 Open Resource
+                                        </a>
+                                    </true>
+                                </check>
+
+                                <p class="text-muted mb-0 small">
+                                    📅 Shared: {{ date('M d, Y', strtotime(@note.created_at)) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </repeat>
+
+                <check if="{{ empty(@notes) }}">
+                    <true>
+                        <div class="col-12">
+                            <div class="alert alert-light text-center py-5 rounded-4 shadow-sm">
+                                <div class="fs-1 mb-3">📝</div>
+                                <h4>No notes yet</h4>
+                                <p class="text-muted">Your teacher hasn't shared any notes with you yet.</p>
+                            </div>
+                        </div>
+                    </true>
+                </check>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

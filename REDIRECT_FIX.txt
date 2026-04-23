@@ -1,0 +1,48 @@
+==========================================
+FIX FOR "TOO MANY REDIRECTS" ERROR
+==========================================
+
+If you're getting ERR_TOO_MANY_REDIRECTS, follow these steps:
+
+1. CLEAR YOUR BROWSER COOKIES:
+   - Clear cookies for your domain
+   - Or use incognito/private browsing mode
+
+2. CHECK .htaccess FILE:
+   - Make sure RewriteBase is commented out if in root directory
+   - If in subdirectory (e.g., /thakshila/), uncomment and set:
+     RewriteBase /thakshila/
+   - Make sure there's only ONE RewriteRule line
+
+3. CHECK FOLDER PERMISSIONS:
+   - db folder: 755 or 777 (must be writable)
+   - tmp folder: 755 or 777 (must be writable)
+
+4. CHECK PHP SESSION:
+   - Make sure PHP sessions are working
+   - Check if tmp folder is writable (sessions stored there)
+
+5. TRY ACCESSING DIRECTLY:
+   - Try: yourdomain.com/index.php
+   - This will bypass .htaccess routing
+
+6. CHECK FOR DUPLICATE .htaccess FILES:
+   - Make sure there's only one .htaccess in your root folder
+   - Check parent directories for conflicting .htaccess files
+
+7. IF STILL NOT WORKING:
+   - Temporarily rename .htaccess to .htaccess.bak
+   - Access: yourdomain.com/index.php
+   - If that works, the issue is with .htaccess configuration
+
+==========================================
+COMMON CAUSES:
+==========================================
+- RewriteBase set incorrectly
+- Multiple .htaccess files
+- Session issues
+- Browser cache/cookies
+- Conflicting redirect rules
+
+==========================================
+

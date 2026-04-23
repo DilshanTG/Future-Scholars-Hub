@@ -1,0 +1,36 @@
+==========================================
+FIX FOR 404 ERROR ON CPANEL
+==========================================
+
+If you're getting a 404 error, follow these steps:
+
+1. CHECK YOUR SUBDIRECTORY PATH:
+   - If your files are in a subdirectory (e.g., /thakshila/), you need to update .htaccess
+
+2. UPDATE .htaccess FILE:
+   - Open the .htaccess file
+   - Find the line: # RewriteBase /thakshila/
+   - Uncomment it and change "/thakshila/" to your actual subdirectory path
+   - Example: If your files are in /public_html/thakshila/, use: RewriteBase /thakshila/
+   - Example: If your files are in /public_html/, leave it commented (no RewriteBase needed)
+
+3. CHECK FOLDER PERMISSIONS:
+   - db folder: 755 or 777 (must be writable)
+   - tmp folder: 755 or 777 (must be writable)
+
+4. CHECK PHP VERSION:
+   - Make sure PHP 7.4 or higher is selected in cPanel
+   - SQLite extension must be enabled
+
+5. TEST THE APPLICATION:
+   - Visit: yourdomain.com/thakshila/ (or your subdirectory)
+   - You should see the login page
+   - Default login: admin / admin123
+
+6. IF STILL NOT WORKING:
+   - Check cPanel error logs
+   - Make sure mod_rewrite is enabled
+   - Try accessing: yourdomain.com/thakshila/index.php directly
+
+==========================================
+

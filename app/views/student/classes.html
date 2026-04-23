@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classes - Future Scholars Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .class-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s;
+            overflow: hidden;
+        }
+
+        .class-card:active {
+            transform: scale(0.98);
+        }
+
+        .class-date-badge {
+            background: var(--bg-light);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid px-0">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg dashboard-header">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-primary fs-4" href="/student/dashboard">🎓 Future Scholars</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-2">
+                        <li class="nav-item"><a class="nav-link" href="/student/dashboard">Dashboard 🏠</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/student/classes">Classes 📚</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/recordings">Recordings 🎥</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/notes">Notes 📝</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/announcements">News 📢</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/payment">Payment 💳</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/profile">Profile 👤</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout 🚪</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+            <h2 class="fw-bold mb-4 px-2">My Classes 📚</h2>
+
+            <!-- Upcoming Classes -->
+            <check if="{{ !empty(@upcomingClasses) }}">
+                <true>
+                    <h4 class="fw-bold text-primary mb-3 px-2">Upcoming 🚀</h4>
+                    <div class="row">
+                        <repeat group="{{ @upcomingClasses }}" value="{{ @class }}">
+                            <div class="col-md-6 mb-4">
+                                <div class="card class-card h-100 border-primary border-2">
+                                    <div class="card-body p-4">
+                                        <div class="class-date-badge">
+                                            📅 {{ date('M d, Y • h:i A', strtotime(@class.class_date)) }}
+                                        </div>
+                                        <h3 class="fw-bold mb-3">{{ @class.topic }}</h3>
+
+                                        <check if="{{ @class.zoom_link }}">
+                                            <true>
+                                                <a href="{{ @class.zoom_link }}" target="_blank"
+                                                    class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm">
+                                                    Join Class Now 🎥
+                                                </a>
+                                            </true>
+                                            <false>
+                                                <button class="btn btn-secondary btn-lg w-100 rounded-pill" disabled>
+                                                    Link Coming Soon ⏳
+                                                </button>
+                                            </false>
+                                        </check>
+                                    </div>
+                                </div>
+                            </div>
+                        </repeat>
+                    </div>
+                </true>
+            </check>
+
+            <!-- Past Classes -->
+            <h4 class="fw-bold text-muted mb-3 mt-4 px-2">Past Classes 📜</h4>
+            <div class="row">
+                <repeat group="{{ @pastClasses }}" value="{{ @class }}">
+                    <div class="col-md-6 mb-3">
+                        <div class="card class-card bg-light">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">{{ @class.topic }}</h5>
+                                        <small class="text-muted">📅 {{ date('M d, Y', strtotime(@class.class_date))
+                                            }}</small>
+                                    </div>
+                                    <check if="{{ @class.zoom_link }}">
+                                        <true>
+                                            <a href="{{ @class.zoom_link }}" target="_blank"
+                                                class="btn btn-outline-primary btn-sm rounded-pill">
+                                                Recording 📼
+                                            </a>
+                                        </true>
+                                    </check>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </repeat>
+
+                <check if="{{ empty(@pastClasses) && empty(@upcomingClasses) }}">
+                    <true>
+                        <div class="col-12">
+                            <div class="alert alert-light text-center py-5 rounded-4 shadow-sm">
+                                <div class="fs-1 mb-3">📭</div>
+                                <h4>No classes found</h4>
+                                <p class="text-muted">You haven't been assigned to any classes yet.</p>
+                            </div>
+                        </div>
+                    </true>
+                </check>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

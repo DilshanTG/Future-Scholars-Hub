@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# If installed in a subdirectory, uncomment and set the path below
+# Example: RewriteBase /thakshila/
+# RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+

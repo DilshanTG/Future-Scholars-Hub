@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Status - Future Scholars Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .payment-status-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            padding: 2rem;
+            background: white;
+        }
+
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid px-0">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg dashboard-header">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-primary fs-4" href="/student/dashboard">🎓 Future Scholars</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-2">
+                        <li class="nav-item"><a class="nav-link" href="/student/dashboard">Dashboard 🏠</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/classes">Classes 📚</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/recordings">Recordings 🎥</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/notes">Notes 📝</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/announcements">News 📢</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/student/payment">Payment 💳</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/student/profile">Profile 👤</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout 🚪</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <h2 class="fw-bold mb-4 text-center">Payment Status 💳</h2>
+
+                    <div class="card payment-status-card">
+                        <check if="{{ @student.status == 'active' }}">
+                            <true>
+                                <div class="status-icon">✅</div>
+                                <h3 class="fw-bold text-success mb-3">Active</h3>
+                                <p class="text-muted mb-4">Your account is active and you have full access to all
+                                    classes and materials.</p>
+                                <div class="alert alert-success bg-opacity-10 border-0 rounded-4">
+                                    <strong>Great job!</strong> You're all set for your learning journey. 🚀
+                                </div>
+                            </true>
+                            <false>
+                                <div class="status-icon">⚠️</div>
+                                <h3 class="fw-bold text-warning mb-3">Payment Pending</h3>
+                                <p class="text-muted mb-4">Your account is currently inactive. Please complete your
+                                    payment to regain access.</p>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-lg rounded-pill">Contact Teacher 📞</button>
+                                </div>
+                            </false>
+                        </check>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

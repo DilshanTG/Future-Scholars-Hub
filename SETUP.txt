@@ -1,0 +1,38 @@
+FUTURE SCHOLARS HUB - QUICK SETUP GUIDE
+========================================
+
+1. UPLOAD TO CPANEL
+   - Upload the entire 'online_class' folder to your cPanel public_html directory
+   - Or upload to a subdirectory if you prefer
+
+2. SET PERMISSIONS
+   - Set 'db' folder permissions to 755 (or 777 if needed)
+   - Set 'tmp' folder permissions to 755 (or 777 if needed)
+   - These folders need to be writable for the application to work
+
+3. ACCESS THE APPLICATION
+   - Open your browser and go to: http://yourdomain.com/online_class
+   - Or: http://yourdomain.com (if uploaded to public_html root)
+
+4. DEFAULT LOGIN
+   - Teacher Username: admin
+   - Teacher Password: admin123
+   - CHANGE THIS PASSWORD IMMEDIATELY AFTER FIRST LOGIN!
+
+5. ADDING STUDENTS
+   - Login as teacher
+   - Go to Students → Add New Student
+   - Mobile number = Login ID for students
+   - Default password for students: student123
+
+6. DATABASE
+   - SQLite database will be created automatically in db/online_class.db
+   - No database setup required!
+
+7. REQUIREMENTS
+   - PHP 7.4 or higher
+   - SQLite extension enabled
+   - Apache with mod_rewrite enabled
+
+That's it! The system is ready to use.
+

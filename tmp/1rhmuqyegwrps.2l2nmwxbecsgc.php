@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - Future Scholars Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/teacher/dashboard">🎓 Future Scholars Hub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/teacher/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/teacher/students">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/teacher/classes">Classes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/teacher/recordings">Recordings</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/teacher/payments">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/teacher/notes">Notes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/teacher/history">History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">Payment Management</h2>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Mobile</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (($students?:[]) as $student): ?>
+                    <tr class="payment-row" data-student-id="<?= ($student['id']) ?>">
+                        <form method="POST" action="/teacher/payments/update" class="payment-form" data-student-id="<?= ($student['id']) ?>" style="display: contents;">
+                            <input type="hidden" name="student_id" value="<?= ($student['id']) ?>">
+                            <td><?= ($student['name']) ?></td>
+                            <td><?= ($student['mobile']) ?></td>
+                            <td><?= ($student['grade']) ?></td>
+                            <td>
+                                <span class="badge <?= ($student['status'] == 'active' ? 'bg-success' : 'bg-secondary') ?>">
+                                    <?= ($student['status'])."
+" ?>
+                                </span>
+                            </td>
+                            <td>
+                                <select name="month" class="form-select form-select-sm payment-month" required>
+                                    <option value="January" <?= ($currentMonth == 'January' ? 'selected' : '') ?>>January</option>
+                                    <option value="February" <?= ($currentMonth == 'February' ? 'selected' : '') ?>>February</option>
+                                    <option value="March" <?= ($currentMonth == 'March' ? 'selected' : '') ?>>March</option>
+                                    <option value="April" <?= ($currentMonth == 'April' ? 'selected' : '') ?>>April</option>
+                                    <option value="May" <?= ($currentMonth == 'May' ? 'selected' : '') ?>>May</option>
+                                    <option value="June" <?= ($currentMonth == 'June' ? 'selected' : '') ?>>June</option>
+                                    <option value="July" <?= ($currentMonth == 'July' ? 'selected' : '') ?>>July</option>
+                                    <option value="August" <?= ($currentMonth == 'August' ? 'selected' : '') ?>>August</option>
+                                    <option value="September" <?= ($currentMonth == 'September' ? 'selected' : '') ?>>September</option>
+                                    <option value="October" <?= ($currentMonth == 'October' ? 'selected' : '') ?>>October</option>
+                                    <option value="November" <?= ($currentMonth == 'November' ? 'selected' : '') ?>>November</option>
+                                    <option value="December" <?= ($currentMonth == 'December' ? 'selected' : '') ?>>December</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="year" class="form-select form-select-sm payment-year" required>
+                                    <?php foreach (($years?:[]) as $year): ?>
+                                        <option value="<?= ($year) ?>" <?= ($currentYear == $year ? 'selected' : '') ?>><?= ($year) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge payment-status-badge <?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'bg-success' : 'bg-danger') ?>" 
+                                        data-payment-status="<?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'paid' : 'unpaid') ?>">
+                                        <?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'Paid' : 'Unpaid')."
+" ?>
+                                    </span>
+                                    <input type="checkbox" class="form-check-input payment-checkbox" 
+                                        <?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'checked' : '')."
+" ?>
+                                        data-initial-checked="<?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'true' : 'false') ?>">
+                                </div>
+                                <input type="hidden" name="status" class="payment-status-value" value="<?= ($student['current_payment'] && $student['current_payment']['status'] == 'paid' ? 'paid' : 'unpaid') ?>">
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <select name="student_status" class="form-select form-select-sm student-status" style="width: auto;">
+                                        <option value="active" <?= ($student['status'] == 'active' ? 'selected' : '') ?>>Active</option>
+                                        <option value="inactive" <?= ($student['status'] == 'inactive' ? 'selected' : '') ?>>Inactive</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                </div>
+                            </td>
+                        </form>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">© 2024 Future Scholars Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize payment status for current month/year
+            document.querySelectorAll('.payment-row').forEach(function(row) {
+                try {
+                    const studentId = row.getAttribute('data-student-id');
+                    if (!studentId) {
+                        console.warn('Student ID not found in row');
+                        return;
+                    }
+                    
+                    const form = row.querySelector('.payment-form');
+                    if (!form) {
+                        console.warn('Form not found in row for student:', studentId);
+                        return;
+                    }
+                    
+                    const monthSelect = row.querySelector('.payment-month');
+                    const yearSelect = row.querySelector('.payment-year');
+                    const checkbox = row.querySelector('.payment-checkbox');
+                    const statusBadge = row.querySelector('.payment-status-badge');
+                    const statusValue = row.querySelector('.payment-status-value');
+                    
+                    // Check if all required elements exist
+                    if (!monthSelect || !yearSelect) {
+                        console.warn('Month/Year selects not found for student:', studentId);
+                        return;
+                    }
+                    if (!checkbox) {
+                        console.warn('Checkbox not found for student:', studentId);
+                        return;
+                    }
+                    if (!statusBadge) {
+                        console.warn('Status badge not found for student:', studentId);
+                        return;
+                    }
+                    
+                    // Get initial state from badge data attribute
+                    const initialStatus = statusBadge.getAttribute('data-payment-status') || 'unpaid';
+                    const initialChecked = initialStatus === 'paid';
+                    
+                    // Set initial checkbox state
+                    checkbox.checked = initialChecked;
+                    
+                    // Ensure display matches initial state
+                    if (initialChecked) {
+                        statusBadge.className = 'badge payment-status-badge bg-success';
+                        statusBadge.textContent = 'Paid';
+                        if (statusValue) statusValue.value = 'paid';
+                    } else {
+                        statusBadge.className = 'badge payment-status-badge bg-danger';
+                        statusBadge.textContent = 'Unpaid';
+                        if (statusValue) statusValue.value = 'unpaid';
+                    }
+                    
+                    // Load payment status for current month/year (will update if different)
+                    loadPaymentStatus(studentId, monthSelect.value, yearSelect.value, form, row);
+                } catch (error) {
+                    console.error('Error initializing payment form:', error);
+                }
+            });
+            
+            // Function to load payment status
+            function loadPaymentStatus(studentId, month, year, form, row) {
+                const searchContainer = row || form;
+                const statusBadge = searchContainer.querySelector('.payment-status-badge');
+                const statusCheckbox = searchContainer.querySelector('.payment-checkbox');
+                const statusValue = searchContainer.querySelector('.payment-status-value');
+                
+                if (!statusBadge || !statusCheckbox) return;
+                
+                statusCheckbox.disabled = true;
+                
+                fetch('/teacher/payments/check?student_id=' + encodeURIComponent(studentId) + '&month=' + encodeURIComponent(month) + '&year=' + encodeURIComponent(year))
+                    .then(response => response.json())
+                    .then(data => {
+                        const isPaid = data && data.status === 'paid';
+                        statusCheckbox.checked = isPaid;
+                        updatePaymentDisplay(form, isPaid, row);
+                        statusCheckbox.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        statusCheckbox.checked = false;
+                        updatePaymentDisplay(form, false, row);
+                        statusCheckbox.disabled = false;
+                    });
+            }
+            
+            // Function to update payment display
+            function updatePaymentDisplay(form, isPaid, row) {
+                const searchContainer = row || form;
+                const statusBadge = searchContainer.querySelector('.payment-status-badge');
+                const statusValue = searchContainer.querySelector('.payment-status-value');
+                
+                if (!statusBadge) return;
+                
+                if (isPaid) {
+                    statusBadge.className = 'badge payment-status-badge bg-success';
+                    statusBadge.textContent = 'Paid';
+                    statusBadge.setAttribute('data-payment-status', 'paid');
+                    if (statusValue) {
+                        statusValue.value = 'paid';
+                    }
+                } else {
+                    statusBadge.className = 'badge payment-status-badge bg-danger';
+                    statusBadge.textContent = 'Unpaid';
+                    statusBadge.setAttribute('data-payment-status', 'unpaid');
+                    if (statusValue) {
+                        statusValue.value = 'unpaid';
+                    }
+                }
+            }
+            
+            // Handle month and year changes
+            document.querySelectorAll('.payment-month, .payment-year').forEach(function(element) {
+                element.addEventListener('change', function() {
+                    const row = this.closest('.payment-row') || this.closest('tr');
+                    const form = row ? row.querySelector('.payment-form') : this.closest('form');
+                    if (!form || !row) return;
+                    
+                    const studentId = row.getAttribute('data-student-id') || form.getAttribute('data-student-id');
+                    const monthSelect = row.querySelector('.payment-month');
+                    const yearSelect = row.querySelector('.payment-year');
+                    
+                    if (!monthSelect || !yearSelect || !studentId) return;
+                    
+                    const month = monthSelect.value;
+                    const year = yearSelect.value;
+                    
+                    loadPaymentStatus(studentId, month, year, form, row);
+                });
+            });
+            
+            // Handle checkbox changes
+            document.querySelectorAll('.payment-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const row = this.closest('.payment-row') || this.closest('tr');
+                    const form = row ? row.querySelector('.payment-form') : this.closest('form');
+                    if (!form || !row) return;
+                    
+                    const isPaid = this.checked;
+                    const statusValue = row.querySelector('.payment-status-value');
+                    
+                    // Update display immediately
+                    updatePaymentDisplay(form, isPaid, row);
+                    
+                    // Update hidden field
+                    if (statusValue) {
+                        statusValue.value = isPaid ? 'paid' : 'unpaid';
+                    }
+                });
+            });
+            
+            // Handle form submission
+            document.querySelectorAll('.payment-form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const row = this.closest('.payment-row') || this.closest('tr');
+                    if (!row) {
+                        alert('Error: Table row not found');
+                        return;
+                    }
+                    
+                    // Find all elements within the row
+                    const checkbox = row.querySelector('.payment-checkbox');
+                    const statusValue = row.querySelector('.payment-status-value');
+                    const monthSelect = row.querySelector('.payment-month');
+                    const yearSelect = row.querySelector('.payment-year');
+                    const studentStatusSelect = row.querySelector('.student-status');
+                    const studentIdInput = row.querySelector('input[name="student_id"]') || this.querySelector('input[name="student_id"]');
+                    
+                    if (!checkbox) {
+                        alert('Error: Checkbox not found');
+                        return;
+                    }
+                    if (!statusValue) {
+                        alert('Error: Status value field not found');
+                        return;
+                    }
+                    if (!monthSelect) {
+                        alert('Error: Month select not found');
+                        return;
+                    }
+                    if (!yearSelect) {
+                        alert('Error: Year select not found');
+                        return;
+                    }
+                    if (!studentIdInput) {
+                        alert('Error: Student ID input not found');
+                        return;
+                    }
+                    
+                    // Update status value from checkbox
+                    const isPaid = checkbox.checked;
+                    statusValue.value = isPaid ? 'paid' : 'unpaid';
+                    
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('student_id', studentIdInput.value);
+                    formData.append('month', monthSelect.value);
+                    formData.append('year', yearSelect.value);
+                    formData.append('status', statusValue.value);
+                    if (studentStatusSelect) {
+                        formData.append('student_status', studentStatusSelect.value);
+                    }
+                    
+                    const submitBtn = row.querySelector('button[type="submit"]');
+                    if (!submitBtn) {
+                        alert('Submit button not found');
+                        return;
+                    }
+                    
+                    const originalText = submitBtn.textContent;
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Updating...';
+                    
+                    fetch('/teacher/payments/update', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        // Check if response is a redirect
+                        if (response.redirected || response.ok) {
+                            // Success - reload page
+                            window.location.reload();
+                        } else {
+                            return response.text().then(text => {
+                                throw new Error('Update failed: ' + text);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                        alert('Error updating payment: ' + error.message);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

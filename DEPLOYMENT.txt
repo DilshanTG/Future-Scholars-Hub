@@ -1,0 +1,51 @@
+==========================================
+DEPLOYMENT GUIDE FOR SHARED CPANEL
+==========================================
+
+1. UPLOAD FILES:
+   - Upload the entire "online_class_deploy.zip" file to your cPanel
+   - Extract it in your public_html directory (or subdirectory)
+   - Make sure all files are extracted properly
+
+2. SET PERMISSIONS:
+   - Set "db" folder permissions to 755 (or 777 if needed)
+   - Set "tmp" folder permissions to 755 (or 777 if needed)
+   - These folders need to be writable for the application to work
+
+3. DATABASE:
+   - The SQLite database will be automatically created in the "db" folder
+   - Make sure the "db" folder exists and is writable
+   - Default teacher login:
+     Username: admin
+     Password: admin123
+
+4. CONFIGURATION:
+   - The .htaccess file is included for URL rewriting
+   - If you're using a subdirectory, you may need to adjust the .htaccess file
+   - Example: If installed in /subfolder/, add "RewriteBase /subfolder/" after RewriteEngine On
+
+5. REQUIREMENTS:
+   - PHP 7.4 or higher
+   - SQLite extension enabled
+   - mod_rewrite enabled (for .htaccess)
+
+6. FIRST ACCESS:
+   - Visit your domain (or subdirectory)
+   - Login as teacher with: admin / admin123
+   - Start adding students and managing the system
+
+7. TROUBLESHOOTING:
+   - If you see 500 errors, check folder permissions (db and tmp must be writable)
+   - If URLs don't work, check if mod_rewrite is enabled
+   - Check PHP error logs in cPanel for specific errors
+
+==========================================
+IMPORTANT NOTES:
+==========================================
+- The database file (online_class.db) will be created automatically
+- All temporary files go in the "tmp" folder
+- Make sure both "db" and "tmp" folders have write permissions
+- The vendor folder contains all dependencies (no need to run composer)
+
+==========================================
+

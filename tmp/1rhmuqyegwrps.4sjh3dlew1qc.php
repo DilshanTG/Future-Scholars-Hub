@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Future Scholars Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid px-0">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg dashboard-header">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-primary fs-4" href="/teacher/dashboard">🎓 Future Scholars</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-2">
+                        <li class="nav-item"><a class="nav-link" href="/teacher/dashboard">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/teacher/students">Students 👶</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/teacher/classes">Classes 📚</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/teacher/recordings">Recordings 🎥</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/teacher/notes">Notes 📝</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="/teacher/announcements">News 📢</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="/logout">Logout 🚪</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Announcements 📢</h2>
+                <div class="d-none d-md-block">
+                    <a href="/teacher/announcements/add" class="btn btn-primary">Create Announcement</a>
+                    <a href="/teacher/announcements/history" class="btn btn-secondary">History</a>
+                </div>
+            </div>
+
+            <div class="row desktop-table">
+                <?php foreach (($announcements?:[]) as $announcement): ?>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold"><?= ($announcement['title']) ?></h5>
+                                <p class="card-text"><?= ($announcement['message']) ?></p>
+
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex justify-content-between text-muted small mb-2">
+                                        <span>
+                                            <?php if ($announcement['all_students'] > 0): ?>
+                                                👥 All Students
+                                                <?php else: ?>👥 <?= ($announcement['specific_students']) ?> Student(s)
+                                            <?php endif; ?>
+                                        </span>
+                                        <span>📅 <?= (date('M d, Y', strtotime($announcement['created_at']))) ?></span>
+                                    </div>
+                                    <?php if ($announcement['expire_date']): ?>
+                                        
+                                            <div class="text-danger small">⏰ Expires: <?= (date('M d, Y H:i',
+                                                strtotime($announcement['expire_date']))) ?></div>
+                                        
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (empty($announcements)): ?>
+                    
+                        <div class="col-12">
+                            <div class="alert alert-info text-center py-4">
+                                <h4>No active announcements 📭</h4>
+                                <p>Create one to keep your students updated!</p>
+                            </div>
+                        </div>
+                    
+                <?php endif; ?>
+            </div>
+
+            <!-- Mobile Card List -->
+            <div class="mobile-card-list mobile-list">
+                <?php foreach (($announcements?:[]) as $announcement): ?>
+                    <div class="list-card">
+                        <div class="list-card-title"><?= ($announcement['title']) ?></div>
+                        <div class="list-card-subtitle mb-2"><?= ($announcement['message']) ?></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 text-muted small">
+                            <span>
+                                <?php if ($announcement['all_students'] > 0): ?>
+                                    👥 All
+                                    <?php else: ?>👥 <?= ($announcement['specific_students']) ?>
+                                <?php endif; ?>
+                            </span>
+                            <?php if ($announcement['expire_date']): ?>
+                                <span class="text-danger">Exp: <?= (date('M d',
+                                        strtotime($announcement['expire_date']))) ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Floating Action Button (Mobile) -->
+            <a href="/teacher/announcements/add" class="fab-btn d-md-none">
+                +
+            </a>
+            <!-- Secondary FAB for History could be added, but keeping it simple for now. Maybe a small link at bottom? -->
+            <div class="d-md-none text-center mt-4">
+                <a href="/teacher/announcements/history" class="btn btn-link text-muted">View Announcement History</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
