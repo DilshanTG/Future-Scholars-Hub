@@ -17,7 +17,7 @@ import type { Student } from '@/types'
 export default function AnnouncementAddPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ title: '', message: '', expire_date: '' })
+  const [form, setForm] = useState({ title: '', message: '', expire_date: '', expire_time: '00:00' })
   const [sendTo, setSendTo] = useState<'all' | 'specific'>('all')
 
   const [students, setStudents] = useState<Student[]>([])
@@ -57,8 +57,14 @@ export default function AnnouncementAddPage() {
     if (sendTo === 'specific' && selected.size === 0) { toast.error('Select at least one student'); return }
     setSaving(true)
 
+    const expireDateTime = form.expire_date && form.expire_time
+      ? `${form.expire_date}T${form.expire_time}:00`
+      : form.expire_date
+        ? `${form.expire_date}T${form.expire_time || '00:00'}:00`
+        : null
+
     const { data: ann, error } = await supabase.from('announcements')
-      .insert({ title: form.title, message: form.message, expire_date: form.expire_date || null })
+      .insert({ title: form.title, message: form.message, expire_date: expireDateTime })
       .select('id').single()
 
     if (error) { toast.error(error.message); setSaving(false); return }
@@ -93,8 +99,11 @@ export default function AnnouncementAddPage() {
             <Textarea value={form.message} onChange={(e) => set('message', e.target.value)} required className="rounded-xl" rows={4} placeholder="Announcement content..." />
           </div>
           <div className="space-y-2">
-            <Label>Expiry Date <span className="text-muted-foreground font-normal">(optional)</span></Label>
-            <Input type="date" value={form.expire_date} onChange={(e) => set('expire_date', e.target.value)} className="rounded-xl" />
+            <Label>Expiry Date & Time <span className="text-muted-foreground font-normal">(optional)</span></Label>
+            <div className="flex gap-2">
+              <Input type="date" value={form.expire_date} onChange={(e) => set('expire_date', e.target.value)} className="rounded-xl flex-1" />
+              <Input type="time" value={form.expire_time} onChange={(e) => set('expire_time', e.target.value)} className="rounded-xl w-32" />
+            </div>
           </div>
         </div>
 

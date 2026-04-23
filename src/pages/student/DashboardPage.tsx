@@ -81,11 +81,7 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      {isInactive && (
-        <Alert variant="destructive" className="rounded-xl">
-          <AlertDescription>Your account is currently inactive. Some content may not be accessible. Please contact your teacher.</AlertDescription>
-        </Alert>
-      )}
+
 
       {/* Status cards */}
       <div className="grid grid-cols-2 gap-4">

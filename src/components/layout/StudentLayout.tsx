@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -39,10 +40,51 @@ export default function StudentLayout() {
   const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [status, setStatus] = useState<'active' | 'inactive' | 'loading'>('loading')
+
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('students')
+      .select('status')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        setStatus(data?.status ?? 'active')
+      })
+  }, [user])
 
   const handleSignOut = async () => {
     await signOut()
     navigate('/', { replace: true })
+  }
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="animate-pulse text-[#6C63FF] text-lg font-medium font-caveat">Loading...</div>
+      </div>
+    )
+  }
+
+  if (status === 'inactive') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-soft p-8 text-center border border-red-100">
+          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-3">Account Inactive</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            Your student account is currently inactive. You cannot access the dashboard or class materials. Please contact your teacher to reactivate your account.
+          </p>
+          <Button onClick={handleSignOut} className="w-full bg-[#6C63FF] hover:bg-[#5a52d5] rounded-xl h-12 text-base shadow-md hover:shadow-lg transition-all">
+            <LogOut className="h-5 w-5 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
