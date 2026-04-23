@@ -68,6 +68,16 @@ const fetchPayments = async () => {
     }
   }
 
+  const toggleStudentStatus = async (student: StudentPaymentRow) => {
+    const newStatus = student.status === 'active' ? 'inactive' : 'active'
+    const { error } = await supabase.from('students').update({ status: newStatus }).eq('id', student.id)
+    if (error) {
+      toast.error('Failed to update status')
+    } else {
+      setRows((prev) => prev.map((r) => r.id === student.id ? { ...r, status: newStatus } : r))
+    }
+  }
+
   const filtered = rows.filter((r) => {
     const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.mobile.includes(search)
     const matchGrade = gradeFilter === 'all' || r.grade === gradeFilter
@@ -173,9 +183,13 @@ const fetchPayments = async () => {
                   </td>
                   <td className="px-4 py-3"><Badge variant="outline" className="text-xs">{r.grade}</Badge></td>
                   <td className="px-4 py-3">
-                    <Badge className={r.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}>
-                      {r.status}
-                    </Badge>
+                    <button
+                      type="button"
+                      onClick={() => toggleStudentStatus(r)}
+                      className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full transition-all duration-200 ${r.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}
+                    >
+                      <span className={`pointer-events-none block h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${r.status === 'active' ? 'translate-x-7' : 'translate-x-1'}`} />
+                    </button>
                   </td>
                   <td className="px-4 py-3">
                     <button
