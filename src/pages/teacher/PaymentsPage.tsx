@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { StatCard } from '@/components/shared/StatCard'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -179,14 +178,18 @@ const fetchPayments = async () => {
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={r.paymentStatus === 'paid'}
-                        onCheckedChange={(checked) => togglePayment(r.id, checked ? 'paid' : 'unpaid')}
-                        disabled={r.loadingPayment}
-                      />
-                      <Badge className={`text-xs ${r.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                        {r.paymentStatus}
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={r.paymentStatus === 'paid'}
+                        onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                        className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
+                      <Badge className={`text-xs font-medium ${r.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                        {r.paymentStatus === 'paid' ? '✅ Paid' : '⏳ Pending'}
                       </Badge>
                     </div>
                   </td>
@@ -205,13 +208,15 @@ const fetchPayments = async () => {
                   <p className="text-xs text-muted-foreground">{r.grade} · {r.mobile}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Switch
-                    checked={r.paymentStatus === 'paid'}
-                    onCheckedChange={(checked) => togglePayment(r.id, checked ? 'paid' : 'unpaid')}
-                    disabled={r.loadingPayment}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                    className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
+                  >
+                    <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
                   <Badge className={`text-xs ${r.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                    {r.paymentStatus}
+                    {r.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
                   </Badge>
                 </div>
               </div>
