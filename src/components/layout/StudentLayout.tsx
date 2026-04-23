@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, LogOut } from 'lucide-react'
+import { Footer } from '@/components/layout/Footer'
 
 const navLinks = [
   { to: '/student/dashboard', label: 'Dashboard', emoji: '🏠' },
@@ -45,7 +46,7 @@ export default function StudentLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -110,9 +111,11 @@ export default function StudentLayout() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
         <Outlet />
       </main>
+
+      <Footer />
     </div>
   )
 }

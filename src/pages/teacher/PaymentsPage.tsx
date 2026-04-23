@@ -55,6 +55,20 @@ const fetchPayments = async () => {
 
   useEffect(() => { fetchPayments() }, [month, year])
 
+  const togglePayment = async (studentId: string, newStatus: 'paid' | 'unpaid') => {
+    setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, loadingPayment: true } : r))
+    const { error } = await supabase.from('payments').upsert({
+      student_id: studentId, month, year: parseInt(year),
+      status: newStatus, updated_at: new Date().toISOString(),
+    }, { onConflict: 'student_id,month,year' })
+    if (error) {
+      toast.error('Failed to update payment')
+      setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, loadingPayment: false } : r))
+    } else {
+      setRows((prev) => prev.map((r) => r.id === studentId ? { ...r, paymentStatus: newStatus, loadingPayment: false } : r))
+    }
+  }
+
   const filtered = rows.filter((r) => {
     const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.mobile.includes(search)
     const matchGrade = gradeFilter === 'all' || r.grade === gradeFilter
