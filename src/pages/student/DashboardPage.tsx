@@ -3,7 +3,6 @@ import { useAuthStore } from '@/store/authStore'
 import { supabase } from '@/lib/supabase'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
@@ -63,7 +62,7 @@ export default function StudentDashboard() {
     )
   }
 
-  const isInactive = studentInfo?.status === 'inactive'
+
 
   return (
     <div className="space-y-4">

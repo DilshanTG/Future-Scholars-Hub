@@ -30,7 +30,7 @@ export function ClassInviteDialog({ open, onOpenChange, currentClass }: ClassInv
     setLoading(true)
 
     async function loadStudents() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('class_assignments')
         .select('students(id, name, mobile)')
         .eq('class_id', currentClass!.id)
