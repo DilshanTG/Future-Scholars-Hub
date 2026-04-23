@@ -9,7 +9,7 @@ interface StatCardProps {
 
 export function StatCard({ emoji, label, value, color = '#6C63FF' }: StatCardProps) {
   return (
-    <Card className="card-hover rounded-2xl border-0 shadow-sm">
+    <Card className="card-hover rounded-2xl border-0 shadow-card transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>

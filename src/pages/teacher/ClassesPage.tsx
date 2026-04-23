@@ -67,9 +67,9 @@ export default function ClassesPage() {
       ) : classes.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📅</p><p>No classes yet</p></div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-card overflow-hidden">
           <table className="w-full hidden md:table">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50/80 border-b">
               <tr>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Topic</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Date & Time</th>
@@ -78,9 +78,9 @@ export default function ClassesPage() {
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-100">
               {classes.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50">
+                <tr key={c.id} className="hover:bg-gray-50/50 transition-colors duration-200">
                   <td className="px-4 py-3 font-medium text-gray-800">{c.topic}</td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</td>
                   <td className="px-4 py-3"><Badge variant="outline">{c.assigned_count} students</Badge></td>

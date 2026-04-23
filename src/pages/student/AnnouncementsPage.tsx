@@ -29,8 +29,7 @@ export default function StudentAnnouncementsPage() {
     const now = new Date()
     supabase
       .from('announcements')
-      .select('*, announcement_assignments!inner(student_id)')
-      .or(`announcement_assignments.student_id.eq.${user.id},announcement_assignments.student_id.is.null`)
+      .select('*')
       .or(`expire_date.is.null,expire_date.gt.${now.toISOString()}`)
       .order('created_at', { ascending: false })
       .then(({ data }) => { setAnnouncements(data ?? []); setLoading(false) })

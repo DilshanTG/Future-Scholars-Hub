@@ -48,7 +48,7 @@ export default function TeacherLayout() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export default function TeacherLayout() {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="hidden sm:flex gap-1 text-gray-500 hover:text-red-500"
+              className="hidden sm:flex gap-1 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden md:inline">Logout</span>

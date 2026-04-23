@@ -44,9 +44,7 @@ export function AnnouncementPopup({ announcements }: AnnouncementPopupProps) {
 
   const current = undismissed[index]
 
-  const dismissCurrent = () => {
-    const dismissed = getDismissed()
-    saveDismissed([...dismissed, current.id])
+  const handleCloseCurrent = () => {
     const remaining = undismissed.filter((a) => a.id !== current.id)
     if (remaining.length === 0) {
       setVisible(false)
@@ -56,9 +54,13 @@ export function AnnouncementPopup({ announcements }: AnnouncementPopupProps) {
     }
   }
 
-  const dismissAll = () => {
+  const dismissCurrent = () => {
     const dismissed = getDismissed()
-    saveDismissed([...dismissed, ...undismissed.map((a) => a.id)])
+    saveDismissed([...dismissed, current.id])
+    handleCloseCurrent()
+  }
+
+  const handleCloseAll = () => {
     setVisible(false)
   }
 
@@ -121,7 +123,7 @@ export function AnnouncementPopup({ announcements }: AnnouncementPopupProps) {
                   </span>
                 )}
               </div>
-              <button onClick={dismissAll} className="text-gray-400 hover:text-gray-600 transition-colors -mt-1 -mr-2">
+              <button onClick={handleCloseAll} className="text-gray-400 hover:text-gray-600 transition-colors -mt-1 -mr-2">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -179,27 +181,49 @@ export function AnnouncementPopup({ announcements }: AnnouncementPopupProps) {
               )}
             </div>
 
-            {/* Got it button */}
-            <button
-              onClick={dismissCurrent}
-              style={{
-                fontFamily: 'Caveat, cursive',
-                fontSize: '20px',
-                fontWeight: 700,
-                marginTop: '16px',
-                width: '100%',
-                padding: '10px',
-                borderRadius: '6px',
-                background: 'linear-gradient(135deg, #6C63FF, #8B85FF)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(108,99,255,0.4)',
-                letterSpacing: '0.5px',
-              }}
-            >
-              Got it! 👍
-            </button>
+            {/* Actions */}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={handleCloseCurrent}
+                style={{
+                  fontFamily: 'Caveat, cursive',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  background: 'rgba(0,0,0,0.05)',
+                  color: '#475569',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  cursor: 'pointer',
+                  letterSpacing: '0.5px',
+                  transition: 'background 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.08)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+              >
+                Close
+              </button>
+              <button
+                onClick={dismissCurrent}
+                style={{
+                  fontFamily: 'Caveat, cursive',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  background: 'linear-gradient(135deg, #6C63FF, #8B85FF)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(108,99,255,0.4)',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Don't show again
+              </button>
+            </div>
           </div>
         </div>
       </div>

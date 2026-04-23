@@ -37,8 +37,7 @@ export default function StudentDashboard() {
           .order('class_date')
           .limit(1),
         supabase.from('announcements')
-          .select('*, announcement_assignments!inner(student_id)')
-          .or(`announcement_assignments.student_id.eq.${user.id},announcement_assignments.student_id.is.null`)
+          .select('*')
           .or(`expire_date.is.null,expire_date.gt.${now.toISOString()}`)
           .order('created_at', { ascending: false })
           .limit(5),

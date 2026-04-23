@@ -49,7 +49,7 @@ export default function NotesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {notes.map((n) => (
-            <div key={n.id} className="bg-white rounded-2xl shadow-sm p-4 card-hover">
+            <div key={n.id} className="bg-white rounded-2xl shadow-card p-4 card-hover transition-all duration-300">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-800 truncate">{n.title}</h3>
