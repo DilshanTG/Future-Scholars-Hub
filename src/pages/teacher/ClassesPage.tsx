@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { ClassInviteDialog } from '@/components/teacher/ClassInviteDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Plus } from 'lucide-react'
+import { MoreHorizontal, Plus, Send } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import type { Class } from '@/types'
@@ -17,6 +18,7 @@ export default function ClassesPage() {
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [inviteClass, setInviteClass] = useState<Class | null>(null)
   const navigate = useNavigate()
 
   const fetchClasses = async () => {
@@ -90,16 +92,27 @@ export default function ClassesPage() {
                     ) : <span className="text-muted-foreground text-sm">—</span>}
                   </td>
                   <td className="px-4 py-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="rounded-xl">
-                        <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setInviteClass(c)}
+                        className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 px-2.5"
+                      >
+                        <Send className="w-3.5 h-3.5 mr-1.5" />
+                        Invites
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="rounded-xl">
+                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -115,16 +128,26 @@ export default function ClassesPage() {
                   <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(c.class_date), 'PPp')}</p>
                   <Badge variant="outline" className="text-xs mt-1">{c.assigned_count} students</Badge>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="rounded-xl">
-                    <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setInviteClass(c)}
+                    className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 w-8"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl">
+                      <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             ))}
           </div>
@@ -138,6 +161,12 @@ export default function ClassesPage() {
         description="This will delete the class and remove all student assignments."
         onConfirm={handleDelete}
         loading={deleting}
+      />
+
+      <ClassInviteDialog
+        open={!!inviteClass}
+        onOpenChange={(o) => !o && setInviteClass(null)}
+        currentClass={inviteClass}
       />
     </div>
   )
