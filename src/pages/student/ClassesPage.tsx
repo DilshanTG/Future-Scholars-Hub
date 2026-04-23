@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
+import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { format } from 'date-fns'
 import type { Class } from '@/types'
 
@@ -26,17 +27,28 @@ export default function StudentClassesPage() {
   const upcoming = classes.filter((c) => new Date(c.class_date) >= now)
   const past = classes.filter((c) => new Date(c.class_date) < now)
 
-  const ClassCard = ({ c }: { c: Class }) => (
-    <div className="bg-white rounded-2xl shadow-sm p-4 flex items-start justify-between gap-3">
+  const ClassCard = ({ c, isPastClass }: { c: Class; isPastClass: boolean }) => (
+    <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="border-l-4 border-[#6C63FF] pl-3 flex-1">
         <p className="font-medium text-gray-800">{c.topic}</p>
         <p className="text-sm text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</p>
         {c.teacher_note && <p className="text-xs text-muted-foreground mt-1 italic">{c.teacher_note}</p>}
+        {!isPastClass && (
+          <div className="mt-3 mb-1">
+            <CountdownTimer targetDate={c.class_date} />
+          </div>
+        )}
       </div>
-      {c.zoom_link && (
-        <Button asChild size="sm" className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5] shrink-0">
-          <a href={c.zoom_link} target="_blank" rel="noopener noreferrer">Join</a>
-        </Button>
+      {isPastClass ? (
+        <div className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold border border-gray-200 self-start sm:self-center">
+          Ended
+        </div>
+      ) : (
+        c.zoom_link && (
+          <Button asChild size="sm" className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5] shrink-0 self-start sm:self-center">
+            <a href={c.zoom_link} target="_blank" rel="noopener noreferrer">Join</a>
+          </Button>
+        )
       )}
     </div>
   )
@@ -56,14 +68,14 @@ export default function StudentClassesPage() {
             {upcoming.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📅</p><p>No upcoming classes</p></div>
             ) : (
-              <div className="space-y-3">{upcoming.map((c) => <ClassCard key={c.id} c={c} />)}</div>
+              <div className="space-y-3">{upcoming.map((c) => <ClassCard key={c.id} c={c} isPastClass={false} />)}</div>
             )}
           </TabsContent>
           <TabsContent value="past">
             {past.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">🗓️</p><p>No past classes</p></div>
             ) : (
-              <div className="space-y-3 opacity-70">{past.map((c) => <ClassCard key={c.id} c={c} />)}</div>
+              <div className="space-y-3 opacity-70">{past.map((c) => <ClassCard key={c.id} c={c} isPastClass={true} />)}</div>
             )}
           </TabsContent>
         </Tabs>

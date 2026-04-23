@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
+import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { format, isPast } from 'date-fns'
 import type { Class, Announcement } from '@/types'
 
@@ -109,6 +110,9 @@ export default function StudentDashboard() {
           <div className="border-l-4 border-[#6C63FF] pl-4">
             <p className="font-medium text-gray-800">{nextClass.topic}</p>
             <p className="text-sm text-muted-foreground">{format(new Date(nextClass.class_date), 'PPp')}</p>
+            <div className="mt-3 mb-2">
+              <CountdownTimer targetDate={nextClass.class_date} />
+            </div>
             {nextClass.zoom_link && (
               <Button asChild size="sm" className="mt-2 rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
                 <a href={nextClass.zoom_link} target="_blank" rel="noopener noreferrer">Join Class</a>
