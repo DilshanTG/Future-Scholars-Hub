@@ -9,14 +9,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
-import { GRADES, DISTRICTS, getRandomAvatar } from '@/lib/constants'
+import { GRADES, DISTRICTS, getRandomAvatar, generateStudentPassword } from '@/lib/constants'
 import { toast } from 'sonner'
 
 export default function StudentAddPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [password] = useState(() => generateStudentPassword())
+  const [copied, setCopied] = useState(false)
   const [form, setForm] = useState({
     name: '', mobile: '', grade: '', gender: 'Male' as 'Male' | 'Female' | 'Other',
     district: '', description: '', teacher_note: '',
@@ -24,7 +25,7 @@ export default function StudentAddPage() {
   })
 
   const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }))
-  
+
   const setMobile = (v: string) => {
     const cleaned = v.replace(/\D/g, '').substring(0, 10)
     setForm((f) => ({ ...f, mobile: cleaned }))
@@ -32,6 +33,12 @@ export default function StudentAddPage() {
 
   const handleGenderChange = (v: string) => {
     setForm((f) => ({ ...f, gender: v as 'Male' | 'Female' | 'Other', avatar: getRandomAvatar(v) }))
+  }
+
+  const copyPassword = () => {
+    navigator.clipboard.writeText(password)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,6 +69,7 @@ export default function StudentAddPage() {
         description: form.description || null,
         teacher_note: form.teacher_note || null,
         avatar: form.avatar,
+        password,
       },
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
@@ -90,11 +98,21 @@ export default function StudentAddPage() {
     <div className="max-w-2xl mx-auto">
       <PageHeader title="Add Student" backTo="/teacher/students" />
 
-      <Alert className="mb-4 rounded-xl bg-blue-50 border-blue-200">
-        <AlertDescription className="text-blue-700 text-sm">
-          Default password is <strong>student123</strong>. The student logs in using their mobile number.
-        </AlertDescription>
-      </Alert>
+      {/* Auto-generated password card */}
+      <div className="mb-4 rounded-2xl border-2 border-purple-200 bg-purple-50 p-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium text-purple-500 uppercase tracking-wide mb-1">Auto-generated Password</p>
+          <p className="text-2xl font-bold text-purple-700 tracking-wide">{password}</p>
+          <p className="text-xs text-purple-400 mt-1">Share this with the student — they log in with their mobile number.</p>
+        </div>
+        <button
+          type="button"
+          onClick={copyPassword}
+          className="shrink-0 rounded-xl border border-purple-300 bg-white px-3 py-2 text-sm font-medium text-purple-600 hover:bg-purple-100 transition-colors"
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -104,12 +122,12 @@ export default function StudentAddPage() {
           </div>
           <div className="space-y-2">
             <Label>Mobile Number *</Label>
-            <Input 
-              value={form.mobile} 
-              onChange={(e) => setMobile(e.target.value)} 
-              required 
-              className="rounded-xl" 
-              placeholder="07XXXXXXXX" 
+            <Input
+              value={form.mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              required
+              className="rounded-xl"
+              placeholder="07XXXXXXXX"
               type="tel"
               maxLength={10}
             />

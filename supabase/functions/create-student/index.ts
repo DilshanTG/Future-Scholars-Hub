@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json()
-    const { mobile, name, grade, gender, district, description, teacher_note, avatar } = body
+    const { mobile, name, grade, gender, district, description, teacher_note, avatar, password } = body
 
     if (!mobile || !name || !grade || !gender) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     const email = `${mobile}@fsh.internal`
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password: 'student123',
+      password: password ?? 'student123',
       email_confirm: true,
     })
 

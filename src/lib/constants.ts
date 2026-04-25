@@ -14,6 +14,23 @@ export const DISTRICTS = [
 
 export const DEFAULT_STUDENT_PASSWORD = 'student123'
 
+const CUTE_WORDS = [
+  'bunny','kitty','puppy','panda','koala','tiger','zebra','llama','otter','pixie',
+  'robin','daisy','tulip','maple','coral','pearl','amber','misty','sunny','bloom',
+  'happy','jolly','zippy','jazzy','fuzzy','zany','perky','snazzy','velvet','dreamy',
+  'starry','moony','golden','lunar','prism','cozy','lemon','cherry','mango','peach',
+  'berry','melon','candy','honey','sugar','cookie','waffle','muffin','feather','breeze',
+  'meadow','forest','river','cloud','sunset','unicorn','dragon','phoenix','fairy','sprite',
+  'ripple','twinkle','giggle','bubble','dazzle','freckle','sprinkle','pebble','velvet','comet',
+  'blossom','cuddle','fluffy','gentle','glitter','rainbow','shimmer','whisper','wonder','breeze',
+]
+
+export function generateStudentPassword(): string {
+  const word = CUTE_WORDS[Math.floor(Math.random() * CUTE_WORDS.length)]
+  const nums = String(Math.floor(Math.random() * 900) + 100)
+  return word + nums
+}
+
 export function getRandomAvatar(gender: string): string {
   if (gender === 'Female') {
     return GIRL_AVATARS[Math.floor(Math.random() * GIRL_AVATARS.length)]
