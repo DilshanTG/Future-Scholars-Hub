@@ -27,6 +27,7 @@ export interface Student {
   archived: boolean
   avatar: string
   teacher_note: string | null
+  login_password: string | null
   created_at: string
   payment_status?: 'paid' | 'unpaid'
 }

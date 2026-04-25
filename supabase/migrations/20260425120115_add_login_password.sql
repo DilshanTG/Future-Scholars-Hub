@@ -1,0 +1,1 @@
+ALTER TABLE students ADD COLUMN IF NOT EXISTS login_password TEXT;

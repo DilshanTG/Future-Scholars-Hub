@@ -81,6 +81,7 @@ Deno.serve(async (req) => {
         description: description || null,
         teacher_note: teacher_note || null,
         avatar: avatar ?? '🎓',
+        login_password: password ?? 'student123',
       })
       .select('id')
       .single()

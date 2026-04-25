@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Plus, Archive, ArchiveRestore } from 'lucide-react'
+import { MoreHorizontal, Plus, Archive, ArchiveRestore, Send } from 'lucide-react'
 import { toast } from 'sonner'
+import { InviteDialog } from '@/components/shared/InviteDialog'
 import type { Student } from '@/types'
 
 export default function StudentsPage() {
@@ -23,6 +24,7 @@ export default function StudentsPage() {
   const [showArchived, setShowArchived] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [inviteStudent, setInviteStudent] = useState<Student | null>(null)
   const navigate = useNavigate()
 
   const fetchStudents = async () => {
@@ -85,6 +87,10 @@ export default function StudentsPage() {
       toast.success(`Student marked ${newStatus}`)
       fetchStudents()
     }
+  }
+
+  const handlePasswordReset = (studentId: string, newPassword: string) => {
+    setStudents((prev) => prev.map((s) => s.id === studentId ? { ...s, login_password: newPassword } : s))
   }
 
   const archivedCount = students.filter((s) => s.archived).length
@@ -189,11 +195,22 @@ export default function StudentsPage() {
                       </td>
                     )}
                     <td className="px-4 py-3">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl">
+                      <div className="flex items-center gap-1 justify-end">
+                        {!showArchived && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setInviteStudent(s)}
+                            className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 px-2.5"
+                          >
+                            <Send className="w-3.5 h-3.5 mr-1.5" />Invite
+                          </Button>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl">
                           {!showArchived && <>
                             <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}`)}>View</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/edit`)}>Edit</DropdownMenuItem>
@@ -218,7 +235,8 @@ export default function StudentsPage() {
                           )}
                           <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(s.id)}>Delete Permanently</DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
+                        </DropdownMenu>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -248,36 +266,54 @@ export default function StudentsPage() {
                     </div>
                   )}
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="rounded-xl">
-                    {!showArchived && <>
-                      <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}`)}>View</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/edit`)}>Edit</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleToggleStatus(s.id, s.status)} className={s.status === 'active' ? 'text-orange-600' : 'text-green-600'}>
-                        {s.status === 'active' ? 'Mark Inactive' : 'Mark Active'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-gray-500" onClick={() => handleArchive(s.id, true)}>
-                        <Archive className="h-4 w-4 mr-2" />Archive
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>}
-                    {showArchived && (
-                      <DropdownMenuItem className="text-green-600" onClick={() => handleArchive(s.id, false)}>
-                        <ArchiveRestore className="h-4 w-4 mr-2" />Restore
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(s.id)}>Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center gap-1 shrink-0">
+                  {!showArchived && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setInviteStudent(s)}
+                      className="h-8 w-8 rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl">
+                      {!showArchived && <>
+                        <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}`)}>View</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/edit`)}>Edit</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleToggleStatus(s.id, s.status)} className={s.status === 'active' ? 'text-orange-600' : 'text-green-600'}>
+                          {s.status === 'active' ? 'Mark Inactive' : 'Mark Active'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-gray-500" onClick={() => handleArchive(s.id, true)}>
+                          <Archive className="h-4 w-4 mr-2" />Archive
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>}
+                      {showArchived && (
+                        <DropdownMenuItem className="text-green-600" onClick={() => handleArchive(s.id, false)}>
+                          <ArchiveRestore className="h-4 w-4 mr-2" />Restore
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(s.id)}>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             ))}
           </div>
         </>
       )}
+
+      <InviteDialog
+        student={inviteStudent}
+        onClose={() => setInviteStudent(null)}
+        onPasswordReset={handlePasswordReset}
+      />
 
       <ConfirmDialog
         open={!!deleteId}
