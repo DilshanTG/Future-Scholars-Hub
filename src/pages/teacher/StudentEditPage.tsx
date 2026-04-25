@@ -73,10 +73,43 @@ export default function StudentEditPage() {
     e.preventDefault()
     if (form.mobile && form.mobile.length !== 10) {
       toast.error('Mobile number must be exactly 10 digits')
-      setSaving(false)
       return
     }
     setSaving(true)
+
+    const originalStudent = await supabase.from('students').select('mobile').eq('id', id!).single()
+    const mobileChanged = originalStudent.data?.mobile !== form.mobile
+
+    if (mobileChanged && form.mobile) {
+      const { data: refreshed } = await supabase.auth.refreshSession()
+      const session = refreshed.session
+      if (!session) {
+        toast.error('Session expired. Please log in again.')
+        setSaving(false)
+        return
+      }
+
+      const { data, error } = await supabase.functions.invoke('update-student-mobile', {
+        body: { student_id: id, mobile: form.mobile },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (error) {
+        let msg = 'Failed to update mobile number'
+        if (error instanceof FunctionsHttpError) {
+          try { const b = await error.context.json(); msg = b.error ?? b.message ?? msg } catch {}
+        }
+        toast.error(msg)
+        setSaving(false)
+        return
+      }
+      if (data?.error) {
+        toast.error(data.error)
+        setSaving(false)
+        return
+      }
+    }
+
     const { error } = await supabase.from('students').update({
       mobile: form.mobile,
       name: form.name,
