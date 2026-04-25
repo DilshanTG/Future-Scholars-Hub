@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthState>()(
         } = await supabase.auth.getSession()
 
         if (!session) {
-          set({ initialized: true })
+          set({ initialized: true, user: null })
           return
         }
 

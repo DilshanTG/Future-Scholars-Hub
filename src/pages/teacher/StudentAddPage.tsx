@@ -43,6 +43,13 @@ export default function StudentAddPage() {
     }
     setSaving(true)
 
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      toast.error('Session expired. Please log in again.')
+      setSaving(false)
+      return
+    }
+
     const { data, error } = await supabase.functions.invoke('create-student', {
       body: {
         mobile: form.mobile,
