@@ -43,7 +43,9 @@ export default function StudentAddPage() {
     }
     setSaving(true)
 
-    const { data: { session } } = await supabase.auth.getSession()
+    // Force-refresh so we always send a non-expired access token
+    const { data: refreshed } = await supabase.auth.refreshSession()
+    const session = refreshed.session
     if (!session) {
       toast.error('Session expired. Please log in again.')
       setSaving(false)
@@ -61,6 +63,7 @@ export default function StudentAddPage() {
         teacher_note: form.teacher_note || null,
         avatar: form.avatar,
       },
+      headers: { Authorization: `Bearer ${session.access_token}` },
     })
 
     setSaving(false)
@@ -69,7 +72,7 @@ export default function StudentAddPage() {
       if (error instanceof FunctionsHttpError) {
         try {
           const body = await error.context.json()
-          message = body.error ?? message
+          message = body.error ?? body.message ?? message
         } catch {}
       } else {
         message = error.message
