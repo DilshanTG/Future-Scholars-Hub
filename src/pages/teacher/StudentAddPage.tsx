@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarPicker } from '@/components/shared/AvatarPicker'
 import { Button } from '@/components/ui/button'
@@ -56,8 +57,19 @@ export default function StudentAddPage() {
     })
 
     setSaving(false)
-    if (error || data?.error) {
-      toast.error(data?.error ?? error?.message ?? 'Failed to add student')
+    if (error) {
+      let message = 'Failed to add student'
+      if (error instanceof FunctionsHttpError) {
+        try {
+          const body = await error.context.json()
+          message = body.error ?? message
+        } catch {}
+      } else {
+        message = error.message
+      }
+      toast.error(message)
+    } else if (data?.error) {
+      toast.error(data.error)
     } else {
       toast.success('Student added successfully')
       navigate('/teacher/students')
