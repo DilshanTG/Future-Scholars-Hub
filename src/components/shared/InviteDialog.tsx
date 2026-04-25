@@ -20,6 +20,8 @@ Welcome to the *FutureScholarHub* family! Are you ready to start your learning a
 
 Here is your *Secret Key* to enter the portal:
 
+🚀 *Link:*  https://futurescholars.vercel.app
+
 📱 *Your User Name:*  ${mobile}
 🔑 *Your Password:*  ${password}
 
@@ -68,7 +70,7 @@ export function InviteDialog({ student, onClose, onPasswordReset }: Props) {
       if (error) {
         let msg = 'Failed to reset password'
         if (error instanceof FunctionsHttpError) {
-          try { const b = await error.context.json(); msg = b.error ?? b.message ?? msg } catch {}
+          try { const b = await error.context.json(); msg = b.error ?? b.message ?? msg } catch { }
         }
         toast.error(msg)
       } else if (data?.error) {
