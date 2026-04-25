@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colomboToUTC } from '@/lib/dates'
+import { useConfetti } from '@/hooks/useConfetti'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -17,6 +18,7 @@ import type { Student } from '@/types'
 
 export default function ClassAddPage() {
   const navigate = useNavigate()
+  const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ topic: '', class_date: '', class_time: '', zoom_link: '', teacher_note: '' })
   const [students, setStudents] = useState<Student[]>([])
@@ -80,6 +82,7 @@ export default function ClassAddPage() {
       await supabase.from('class_assignments').insert(rows)
     }
 
+    fireConfetti()
     toast.success(`Class created${selected.size > 0 ? ` and assigned to ${selected.size} student${selected.size > 1 ? 's' : ''}` : ''}`)
     navigate('/teacher/classes')
   }

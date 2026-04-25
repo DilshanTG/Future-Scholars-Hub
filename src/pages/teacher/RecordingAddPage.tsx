@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useConfetti } from '@/hooks/useConfetti'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -16,6 +17,7 @@ import type { Student } from '@/types'
 
 export default function RecordingAddPage() {
   const navigate = useNavigate()
+  const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ topic: '', link: '', description: '' })
 
@@ -66,6 +68,7 @@ export default function RecordingAddPage() {
       )
     }
 
+    fireConfetti()
     toast.success(`Recording added${selected.size > 0 ? ` and assigned to ${selected.size} student${selected.size > 1 ? 's' : ''}` : ''}`)
     navigate('/teacher/recordings')
   }

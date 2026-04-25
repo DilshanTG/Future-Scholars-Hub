@@ -11,10 +11,12 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { GRADES, DISTRICTS, getRandomAvatar, generateStudentPassword } from '@/lib/constants'
+import { useConfetti } from '@/hooks/useConfetti'
 import { toast } from 'sonner'
 
 export default function StudentAddPage() {
   const navigate = useNavigate()
+  const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
   const [password] = useState(() => generateStudentPassword())
   const [copied, setCopied] = useState(false)
@@ -89,6 +91,7 @@ export default function StudentAddPage() {
     } else if (data?.error) {
       toast.error(data.error)
     } else {
+      fireConfetti()
       toast.success('Student added successfully')
       navigate('/teacher/students')
     }

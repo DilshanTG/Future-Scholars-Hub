@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useConfetti } from '@/hooks/useConfetti'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -17,6 +18,7 @@ import type { Student } from '@/types'
 
 export default function NoteAddPage() {
   const navigate = useNavigate()
+  const { fire: fireConfetti } = useConfetti()
   const fileRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ title: '', link: '', details: '' })
@@ -81,6 +83,7 @@ export default function NoteAddPage() {
       )
     }
 
+    fireConfetti()
     toast.success(`Note created${selected.size > 0 ? ` and assigned to ${selected.size} student${selected.size > 1 ? 's' : ''}` : ''}`)
     navigate('/teacher/notes')
   }

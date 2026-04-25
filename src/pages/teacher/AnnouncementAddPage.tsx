@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { colomboToUTC } from '@/lib/dates'
+import { useConfetti } from '@/hooks/useConfetti'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -17,6 +18,7 @@ import type { Student } from '@/types'
 
 export default function AnnouncementAddPage() {
   const navigate = useNavigate()
+  const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ title: '', message: '', expire_date: '', expire_time: '00:00' })
   const [sendTo, setSendTo] = useState<'all' | 'specific'>('all')
@@ -78,6 +80,7 @@ export default function AnnouncementAddPage() {
       )
     }
 
+    fireConfetti()
     toast.success(sendTo === 'all' ? 'Sent to all students' : `Sent to ${selected.size} student${selected.size > 1 ? 's' : ''}`)
     navigate('/teacher/announcements')
   }

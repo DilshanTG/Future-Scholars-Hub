@@ -208,20 +208,33 @@ const fetchPayments = async () => {
           {/* Mobile */}
           <div className="md:hidden divide-y">
             {filtered.map((r) => (
-              <div key={r.id} className="p-4 flex items-center gap-3">
+              <div key={r.id} className="p-3 flex items-center gap-3">
                 <AvatarCircle emoji={r.avatar} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm text-gray-800 truncate">{r.name}</p>
                   <p className="text-xs text-muted-foreground">{r.grade} · {r.mobile}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                    className={`relative inline-flex h-8 w-14 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
-                  >
-                    <span className={`pointer-events-none block h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-7' : 'translate-x-1'}`} />
-                  </button>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Status</span>
+                    <button
+                      type="button"
+                      onClick={() => toggleStudentStatus(r)}
+                      className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}
+                    >
+                      <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.status === 'active' ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Payment</span>
+                    <button
+                      type="button"
+                      onClick={() => togglePayment(r.id, r.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                      className={`relative inline-flex h-7 w-12 cursor-pointer items-center rounded-full transition-all duration-200 ${r.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-red-400'}`}
+                    >
+                      <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${r.paymentStatus === 'paid' ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
