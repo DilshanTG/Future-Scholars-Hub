@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { colomboToUTC } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -58,9 +59,9 @@ export default function AnnouncementAddPage() {
     setSaving(true)
 
     const expireDateTime = form.expire_date && form.expire_time
-      ? `${form.expire_date}T${form.expire_time}:00`
+      ? colomboToUTC(form.expire_date, form.expire_time)
       : form.expire_date
-        ? `${form.expire_date}T${form.expire_time || '00:00'}:00`
+        ? colomboToUTC(form.expire_date, '00:00')
         : null
 
     const { data: ann, error } = await supabase.from('announcements')

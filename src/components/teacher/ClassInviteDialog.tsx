@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { Copy, MessageCircle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -64,8 +64,8 @@ export function ClassInviteDialog({ open, onOpenChange, currentClass }: ClassInv
 
   if (!currentClass) return null
 
-  const dte = format(new Date(currentClass.class_date), 'PPP')
-  const time = format(new Date(currentClass.class_date), 'p')
+  const dte = colomboFormat(currentClass.class_date, 'PPP')
+  const time = colomboFormat(currentClass.class_date, 'p')
   const baseurl = window.location.origin
 
   const getMessage = (studentName?: string) => {

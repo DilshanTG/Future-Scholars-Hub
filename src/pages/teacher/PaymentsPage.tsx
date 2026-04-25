@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Search } from 'lucide-react'
 import { MONTHS } from '@/lib/constants'
+import { colomboMonth, colomboYear } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Student } from '@/types'
 
@@ -18,9 +19,8 @@ interface StudentPaymentRow extends Student {
 }
 
 export default function PaymentsPage() {
-  const now = new Date()
-  const [month, setMonth] = useState(now.toLocaleString('default', { month: 'long' }))
-  const [year, setYear] = useState(now.getFullYear().toString())
+  const [month, setMonth] = useState(colomboMonth)
+  const [year, setYear] = useState(() => colomboYear().toString())
   const [rows, setRows] = useState<StudentPaymentRow[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -31,7 +31,7 @@ export default function PaymentsPage() {
   const [paymentFilter, setPaymentFilter] = useState('all')
   const [grades, setGrades] = useState<string[]>([])
 
-  const years = Array.from({ length: 5 }, (_, i) => (now.getFullYear() - 2 + i).toString())
+  const years = Array.from({ length: 5 }, (_, i) => (colomboYear() - 2 + i).toString())
 
 const fetchPayments = async () => {
     setLoading(true)

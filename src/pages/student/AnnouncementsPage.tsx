@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { supabase } from '@/lib/supabase'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format, isPast } from 'date-fns'
+import { isPast } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import type { Announcement } from '@/types'
 
 function noteRotation(id: string): string {
@@ -127,11 +128,11 @@ export default function StudentAnnouncementsPage() {
                     alignItems: 'center',
                   }}>
                     <span style={{ fontFamily: 'Caveat, cursive', fontSize: '14px', color: '#64748b' }}>
-                      ✍️ {format(new Date(a.created_at), 'PP')}
+                      ✍️ {colomboFormat(a.created_at, 'PP')}
                     </span>
                     {a.expire_date && !isPast(new Date(a.expire_date)) && (
                       <span style={{ fontFamily: 'Caveat, cursive', fontSize: '13px', color: '#f97316' }}>
-                        expires {format(new Date(a.expire_date), 'PP')}
+                        expires {colomboFormat(a.expire_date, 'PP')}
                       </span>
                     )}
                   </div>

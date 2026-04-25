@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Class } from '@/types'
 
@@ -65,7 +65,7 @@ export default function StudentAssignClassPage() {
               <Checkbox checked={assigned.has(c.id)} onCheckedChange={() => toggle(c.id)} />
               <div className="flex-1">
                 <p className="font-medium text-sm text-gray-800">{c.topic}</p>
-                <p className="text-xs text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</p>
+                <p className="text-xs text-muted-foreground">{colomboFormat(c.class_date, 'PPp')}</p>
               </div>
             </label>
           ))

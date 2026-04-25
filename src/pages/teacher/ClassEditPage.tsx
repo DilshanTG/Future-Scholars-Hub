@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
-import { format } from 'date-fns'
+import { colomboToUTC, colomboDateStr, colomboTimeStr } from '@/lib/dates'
 import type { Student } from '@/types'
 
 export default function ClassEditPage() {
@@ -38,11 +38,10 @@ export default function ClassEditPage() {
       ])
 
       if (cls) {
-        const d = new Date(cls.class_date)
         setForm({
           topic: cls.topic ?? '',
-          class_date: format(d, 'yyyy-MM-dd'),
-          class_time: format(d, 'HH:mm'),
+          class_date: colomboDateStr(cls.class_date),
+          class_time: colomboTimeStr(cls.class_date),
           zoom_link: cls.zoom_link ?? '',
           teacher_note: cls.teacher_note ?? '',
         })
@@ -83,7 +82,7 @@ export default function ClassEditPage() {
     e.preventDefault()
     setSaving(true)
 
-    const class_date = `${form.class_date}T${form.class_time || '00:00'}:00`
+    const class_date = colomboToUTC(form.class_date, form.class_time || '00:00')
     const { error } = await supabase.from('classes').update({
       topic: form.topic, class_date,
       zoom_link: form.zoom_link || null,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { colomboMonth, colomboYear } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StudentFilter } from '@/components/shared/StudentFilter'
@@ -29,9 +30,8 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     setLoading(true)
-    const now = new Date()
-    const month = now.toLocaleString('default', { month: 'long' })
-    const year = now.getFullYear()
+    const month = colomboMonth()
+    const year = colomboYear()
 
     const { data } = await supabase
       .from('students')

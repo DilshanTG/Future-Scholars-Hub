@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Plus, Send } from 'lucide-react'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Class } from '@/types'
 
@@ -84,7 +84,7 @@ export default function ClassesPage() {
               {classes.map((c) => (
                 <tr key={c.id} className="hover:bg-gray-50/50 transition-colors duration-200">
                   <td className="px-4 py-3 font-medium text-gray-800">{c.topic}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')}</td>
                   <td className="px-4 py-3"><Badge variant="outline">{c.assigned_count} students</Badge></td>
                   <td className="px-4 py-3">
                     {c.zoom_link ? (
@@ -125,7 +125,7 @@ export default function ClassesPage() {
               <div key={c.id} className="p-4 flex items-start justify-between">
                 <div>
                   <p className="font-medium text-gray-800">{c.topic}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(c.class_date), 'PPp')}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{colomboFormat(c.class_date, 'PPp')}</p>
                   <Badge variant="outline" className="text-xs mt-1">{c.assigned_count} students</Badge>
                 </div>
                 <div className="flex items-center gap-1">

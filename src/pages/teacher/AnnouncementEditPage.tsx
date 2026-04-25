@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { colomboToUTC, colomboDateStr } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -12,7 +13,6 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
-import { format } from 'date-fns'
 import type { Student } from '@/types'
 
 export default function AnnouncementEditPage() {
@@ -43,7 +43,7 @@ export default function AnnouncementEditPage() {
         setForm({
           title: ann.title ?? '',
           message: ann.message ?? '',
-          expire_date: ann.expire_date ? format(new Date(ann.expire_date), 'yyyy-MM-dd') : '',
+          expire_date: ann.expire_date ? colomboDateStr(ann.expire_date) : '',
         })
       }
 
@@ -83,7 +83,7 @@ export default function AnnouncementEditPage() {
     setSaving(true)
 
     const { error } = await supabase.from('announcements').update({
-      title: form.title, message: form.message, expire_date: form.expire_date || null,
+      title: form.title, message: form.message, expire_date: form.expire_date ? colomboToUTC(form.expire_date, '00:00') : null,
     }).eq('id', id!)
 
     if (error) { toast.error(error.message); setSaving(false); return }

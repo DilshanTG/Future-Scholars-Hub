@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { colomboToUTC } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
@@ -51,7 +52,7 @@ export default function ClassBulkPage() {
     setSaving(true)
     const classRows = entries.map((entry) => ({
       topic: entry.topic,
-      class_date: `${entry.class_date}T${entry.class_time || '00:00'}:00`,
+      class_date: colomboToUTC(entry.class_date, entry.class_time || '00:00'),
       zoom_link: entry.zoom_link || null,
       teacher_note: entry.teacher_note || null,
     }))

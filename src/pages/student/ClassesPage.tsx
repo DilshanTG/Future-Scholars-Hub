@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import type { Class } from '@/types'
 
 export default function StudentClassesPage() {
@@ -31,7 +31,7 @@ export default function StudentClassesPage() {
     <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="border-l-4 border-[#6C63FF] pl-3 flex-1">
         <p className="font-medium text-gray-800">{c.topic}</p>
-        <p className="text-sm text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</p>
+        <p className="text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')}</p>
         {c.teacher_note && <p className="text-xs text-muted-foreground mt-1 italic">{c.teacher_note}</p>}
         {!isPastClass && (
           <div className="mt-3 mb-1">

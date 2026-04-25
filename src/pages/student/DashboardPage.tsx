@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
-import { format, isPast } from 'date-fns'
+import { isPast } from 'date-fns'
+import { colomboFormat, colomboMonth, colomboYear } from '@/lib/dates'
 import type { Class, Announcement } from '@/types'
 
 interface StudentInfo {
@@ -25,8 +26,8 @@ export default function StudentDashboard() {
     async function load() {
       if (!user) return
       const now = new Date()
-      const month = now.toLocaleString('default', { month: 'long' })
-      const year = now.getFullYear()
+      const month = colomboMonth()
+      const year = colomboYear()
 
       const [{ data: student }, { data: classes }, { data: anns }, { data: payment }] = await Promise.all([
         supabase.from('students').select('status').eq('id', user.id).single(),
@@ -104,7 +105,7 @@ export default function StudentDashboard() {
         {nextClass ? (
           <div className="border-l-4 border-[#6C63FF] pl-4">
             <p className="font-medium text-gray-800">{nextClass.topic}</p>
-            <p className="text-sm text-muted-foreground">{format(new Date(nextClass.class_date), 'PPp')}</p>
+            <p className="text-sm text-muted-foreground">{colomboFormat(nextClass.class_date, 'PPp')}</p>
             <div className="mt-3 mb-2">
               <CountdownTimer targetDate={nextClass.class_date} />
             </div>
@@ -131,7 +132,7 @@ export default function StudentDashboard() {
                 <p className="font-medium text-sm text-blue-900">{a.title}</p>
                 <p className="text-xs text-blue-700 mt-0.5">{a.message}</p>
                 {a.expire_date && !isPast(new Date(a.expire_date)) && (
-                  <p className="text-xs text-blue-500 mt-1">Expires: {format(new Date(a.expire_date), 'PP')}</p>
+                  <p className="text-xs text-blue-500 mt-1">Expires: {colomboFormat(a.expire_date, 'PP')}</p>
                 )}
               </div>
             ))}

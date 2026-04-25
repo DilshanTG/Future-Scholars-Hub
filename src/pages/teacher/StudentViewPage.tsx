@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Student, Class, Note, Recording } from '@/types'
 
@@ -154,7 +154,7 @@ export default function StudentViewPage() {
                   <div key={c.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
                     <div>
                       <p className="font-medium text-gray-800 text-sm">{c.topic}</p>
-                      <p className="text-xs text-muted-foreground">{format(new Date(c.class_date), 'PPp')}</p>
+                      <p className="text-xs text-muted-foreground">{colomboFormat(c.class_date, 'PPp')}</p>
                     </div>
                     {c.zoom_link && (
                       <Button asChild size="sm" variant="outline" className="rounded-pill text-xs">

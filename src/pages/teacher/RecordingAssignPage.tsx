@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { colomboMonth, colomboYear } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StudentFilter } from '@/components/shared/StudentFilter'
@@ -25,9 +26,8 @@ export default function RecordingAssignPage() {
 
   useEffect(() => {
     async function load() {
-      const now = new Date()
-      const month = now.toLocaleString('default', { month: 'long' })
-      const year = now.getFullYear()
+      const month = colomboMonth()
+      const year = colomboYear()
       const [{ data: sts }, { data: existing }] = await Promise.all([
         supabase.from('students').select('*, payments!left(status, month, year)').eq('archived', false).order('name'),
         supabase.from('recording_assignments').select('student_id').eq('recording_id', id!),

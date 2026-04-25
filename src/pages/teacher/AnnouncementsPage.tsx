@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Plus } from 'lucide-react'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Announcement } from '@/types'
 
@@ -93,12 +93,12 @@ export default function AnnouncementsPage() {
                     </Badge>
                     {a.expire_date && (
                       <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">
-                        Expires {format(new Date(a.expire_date), 'PP')}
+                        Expires {colomboFormat(a.expire_date, 'PP')}
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm text-gray-600">{a.message}</p>
-                  <p className="text-xs text-muted-foreground mt-2">{format(new Date(a.created_at), 'PP')}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{colomboFormat(a.created_at, 'PP')}</p>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

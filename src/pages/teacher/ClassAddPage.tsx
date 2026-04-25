@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { colomboToUTC } from '@/lib/dates'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { AvatarCircle } from '@/components/shared/AvatarCircle'
@@ -65,7 +66,7 @@ export default function ClassAddPage() {
     e.preventDefault()
     setSaving(true)
 
-    const class_date = `${form.class_date}T${form.class_time || '00:00'}:00`
+    const class_date = colomboToUTC(form.class_date, form.class_time || '00:00')
     const { data: cls, error } = await supabase
       .from('classes')
       .insert({ topic: form.topic, class_date, zoom_link: form.zoom_link || null, teacher_note: form.teacher_note || null })

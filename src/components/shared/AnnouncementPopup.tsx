@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import type { Announcement } from '@/types'
 
 interface AnnouncementPopupProps {
@@ -158,10 +158,10 @@ export function AnnouncementPopup({ announcements }: AnnouncementPopupProps) {
             <div className="flex items-center justify-between mt-5 pt-3"
               style={{ borderTop: '1px dashed rgba(147,197,253,0.5)' }}>
               <span style={{ fontFamily: 'Caveat, cursive', fontSize: '15px', color: '#64748b' }}>
-                ✍️ {format(new Date(current.created_at), 'PP')}
+                ✍️ {colomboFormat(current.created_at, 'PP')}
                 {current.expire_date && (
                   <span style={{ color: '#f97316', marginLeft: '8px' }}>
-                    · expires {format(new Date(current.expire_date), 'PP')}
+                    · expires {colomboFormat(current.expire_date, 'PP')}
                   </span>
                 )}
               </span>

@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button'
 import { MoreHorizontal } from 'lucide-react'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
-import { format } from 'date-fns'
+import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Announcement } from '@/types'
 
@@ -88,12 +88,12 @@ export default function AnnouncementsHistoryPage() {
                       {expired && <Badge className="bg-gray-100 text-gray-500 hover:bg-gray-100">Expired</Badge>}
                       {a.expire_date && !expired && (
                         <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">
-                          Expires {format(new Date(a.expire_date), 'PP')}
+                          Expires {colomboFormat(a.expire_date, 'PP')}
                         </Badge>
                       )}
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-2">{a.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{format(new Date(a.created_at), 'PPp')}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{colomboFormat(a.created_at, 'PPp')}</p>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
