@@ -13,6 +13,7 @@ const navLinks = [
   { to: '/student/notes', label: 'Notes', emoji: '📝' },
   { to: '/student/recordings', label: 'Recordings', emoji: '🎥' },
   { to: '/student/announcements', label: 'Announcements', emoji: '📢' },
+  { to: '/student/marks', label: 'Marks', emoji: '🎯' },
   { to: '/student/payment', label: 'Payments', emoji: '💰' },
   { to: '/student/profile', label: 'Profile', emoji: '👤' },
 ]

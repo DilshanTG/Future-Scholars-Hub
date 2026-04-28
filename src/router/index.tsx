@@ -30,6 +30,7 @@ import AnnouncementsPage from '@/pages/teacher/AnnouncementsPage'
 import AnnouncementEditPage from '@/pages/teacher/AnnouncementEditPage'
 import AnnouncementAddPage from '@/pages/teacher/AnnouncementAddPage'
 import AnnouncementsHistoryPage from '@/pages/teacher/AnnouncementsHistoryPage'
+import StudentMarksPage from '@/pages/teacher/StudentMarksPage'
 import SettingsPage from '@/pages/teacher/SettingsPage'
 
 // Student pages
@@ -40,6 +41,7 @@ import StudentRecordingsPage from '@/pages/student/RecordingsPage'
 import StudentAnnouncementsPage from '@/pages/student/AnnouncementsPage'
 import StudentPaymentPage from '@/pages/student/PaymentPage'
 import StudentProfilePage from '@/pages/student/ProfilePage'
+import StudentMarksPage from '@/pages/student/MarksPage'
 
 function RequireTeacher({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
@@ -81,6 +83,7 @@ export const router = createBrowserRouter([
       { path: 'students/:id/edit', element: <StudentEditPage /> },
       { path: 'students/:id/assign-class', element: <StudentAssignClassPage /> },
       { path: 'students/:id/assign-note', element: <StudentAssignNotePage /> },
+      { path: 'students/:id/marks', element: <StudentMarksPage /> },
       { path: 'classes', element: <ClassesPage /> },
       { path: 'classes/add', element: <ClassAddPage /> },
       { path: 'classes/bulk', element: <ClassBulkPage /> },
@@ -114,6 +117,7 @@ export const router = createBrowserRouter([
       { path: 'announcements', element: <StudentAnnouncementsPage /> },
       { path: 'payment', element: <StudentPaymentPage /> },
       { path: 'profile', element: <StudentProfilePage /> },
+      { path: 'marks', element: <StudentMarksPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

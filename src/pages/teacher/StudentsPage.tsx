@@ -216,6 +216,7 @@ export default function StudentsPage() {
                             <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/edit`)}>Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/assign-class`)}>Assign Class</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/assign-note`)}>Assign Note</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/marks`)}>Add Marks</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => handleToggleStatus(s.id, s.status)}
@@ -285,6 +286,7 @@ export default function StudentsPage() {
                       {!showArchived && <>
                         <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}`)}>View</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/edit`)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/teacher/students/${s.id}/marks`)}>Add Marks</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleToggleStatus(s.id, s.status)} className={s.status === 'active' ? 'text-orange-600' : 'text-green-600'}>
                           {s.status === 'active' ? 'Mark Inactive' : 'Mark Active'}

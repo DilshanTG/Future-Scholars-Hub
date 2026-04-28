@@ -80,6 +80,15 @@ export interface Announcement {
   specific_count?: number
 }
 
+export interface Mark {
+  id: string
+  student_id: string
+  title: string
+  score: number
+  total: number
+  created_at: string
+}
+
 export interface BulkClassEntry {
   topic: string
   class_date: string

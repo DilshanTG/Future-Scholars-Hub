@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
-import type { Student, Class, Note, Recording } from '@/types'
+import { getMarkStyle, pct } from '@/lib/markStyle'
+import type { Student, Class, Note, Recording, Mark } from '@/types'
 
 export default function StudentViewPage() {
   const { id } = useParams<{ id: string }>()
@@ -17,21 +18,24 @@ export default function StudentViewPage() {
   const [classes, setClasses] = useState<Class[]>([])
   const [notes, setNotes] = useState<Note[]>([])
   const [recordings, setRecordings] = useState<Recording[]>([])
+  const [marks, setMarks] = useState<Mark[]>([])
   const [loading, setLoading] = useState(true)
   const [togglingStatus, setTogglingStatus] = useState(false)
 
   useEffect(() => {
     async function load() {
-      const [{ data: s }, { data: cls }, { data: nts }, { data: rec }] = await Promise.all([
+      const [{ data: s }, { data: cls }, { data: nts }, { data: rec }, { data: mrk }] = await Promise.all([
         supabase.from('students').select('*').eq('id', id!).single(),
         supabase.from('classes').select('*, class_assignments!inner(student_id)').eq('class_assignments.student_id', id!).order('class_date', { ascending: false }),
         supabase.from('notes').select('*, note_assignments!inner(student_id)').eq('note_assignments.student_id', id!).order('created_at', { ascending: false }),
         supabase.from('recordings').select('*, recording_assignments!inner(student_id)').eq('recording_assignments.student_id', id!).order('created_at', { ascending: false }),
+        supabase.from('marks').select('*').eq('student_id', id!).order('created_at', { ascending: false }),
       ])
       setStudent(s)
       setClasses(cls ?? [])
       setNotes(nts ?? [])
       setRecordings(rec ?? [])
+      setMarks(mrk ?? [])
       setLoading(false)
     }
     load()
@@ -143,6 +147,7 @@ export default function StudentViewPage() {
             <TabsTrigger value="classes">Classes ({classes.length})</TabsTrigger>
             <TabsTrigger value="notes">Notes ({notes.length})</TabsTrigger>
             <TabsTrigger value="recordings">Recordings ({recordings.length})</TabsTrigger>
+            <TabsTrigger value="marks">Marks ({marks.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="classes">
@@ -203,6 +208,36 @@ export default function StudentViewPage() {
                     </Button>
                   </div>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="marks">
+            <div className="flex justify-end mb-3">
+              <Button asChild size="sm" className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
+                <Link to={`/teacher/students/${id}/marks`}>+ Add / Manage Marks</Link>
+              </Button>
+            </div>
+            {marks.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">No marks yet</p>
+            ) : (
+              <div className="space-y-2">
+                {marks.map((m) => {
+                  const style = getMarkStyle(m.score, m.total)
+                  const percent = pct(m.score, m.total)
+                  return (
+                    <div key={m.id} className="p-3 rounded-xl bg-gray-50 flex items-center gap-3">
+                      <div className={`w-1 self-stretch rounded-full bg-gradient-to-b ${style.gradient}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 text-sm truncate">{m.title}</p>
+                        <p className="text-xs text-muted-foreground">{colomboFormat(m.created_at, 'PP')}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-bold text-gray-800">{m.score}<span className="text-muted-foreground font-normal text-xs">/{m.total}</span></p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${style.badge}`}>{style.emoji} {percent}%</span>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </TabsContent>

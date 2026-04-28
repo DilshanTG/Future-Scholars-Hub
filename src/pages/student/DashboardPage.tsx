@@ -8,7 +8,9 @@ import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { isPast } from 'date-fns'
 import { colomboFormat, colomboMonth, colomboYear } from '@/lib/dates'
-import type { Class, Announcement } from '@/types'
+import { getMarkStyle, pct } from '@/lib/markStyle'
+import { Link } from 'react-router-dom'
+import type { Class, Announcement, Mark } from '@/types'
 
 interface StudentInfo {
   status: 'active' | 'inactive'
@@ -20,6 +22,7 @@ export default function StudentDashboard() {
   const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null)
   const [nextClass, setNextClass] = useState<Class | null>(null)
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [latestMark, setLatestMark] = useState<Mark | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -29,7 +32,7 @@ export default function StudentDashboard() {
       const month = colomboMonth()
       const year = colomboYear()
 
-      const [{ data: student }, { data: classes }, { data: anns }, { data: payment }] = await Promise.all([
+      const [{ data: student }, { data: classes }, { data: anns }, { data: payment }, { data: mark }] = await Promise.all([
         supabase.from('students').select('status').eq('id', user.id).single(),
         supabase.from('classes')
           .select('*, class_assignments!inner(student_id)')
@@ -43,11 +46,13 @@ export default function StudentDashboard() {
           .order('created_at', { ascending: false })
           .limit(5),
         supabase.from('payments').select('status').eq('student_id', user.id).eq('month', month).eq('year', year).maybeSingle(),
+        supabase.from('marks').select('*').eq('student_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       ])
 
       setStudentInfo({ status: student?.status ?? 'active', payment_status: payment?.status ?? 'unpaid' })
       setNextClass(classes?.[0] ?? null)
       setAnnouncements(anns ?? [])
+      setLatestMark(mark ?? null)
       setLoading(false)
     }
     load()
@@ -98,6 +103,33 @@ export default function StudentDashboard() {
           </Badge>
         </div>
       </div>
+
+      {/* Latest mark */}
+      {latestMark && (() => {
+        const style = getMarkStyle(latestMark.score, latestMark.total)
+        const percent = pct(latestMark.score, latestMark.total)
+        return (
+          <Link to="/student/marks" className="block">
+            <div className={`rounded-2xl overflow-hidden shadow-sm bg-gradient-to-r ${style.gradient} hover:shadow-md transition-shadow`}>
+              <div className="p-4 flex items-center gap-4">
+                <div className="text-4xl">{style.emoji}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-white/70 uppercase tracking-wide">Latest Result</p>
+                  <p className="font-bold text-white truncate">{latestMark.title}</p>
+                  <div className="mt-1.5 h-1.5 rounded-full bg-white/30 overflow-hidden">
+                    <div className="h-full rounded-full bg-white transition-all duration-700" style={{ width: `${percent}%` }} />
+                  </div>
+                </div>
+                <div className="text-center shrink-0">
+                  <p className="text-2xl font-extrabold text-white">{latestMark.score}</p>
+                  <p className="text-white/70 text-xs">/{latestMark.total}</p>
+                  <p className="text-white font-semibold text-sm">{percent}%</p>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )
+      })()}
 
       {/* Next class */}
       <div className="bg-white rounded-2xl shadow-sm p-4">
