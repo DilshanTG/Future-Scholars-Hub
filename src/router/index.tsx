@@ -30,7 +30,7 @@ import AnnouncementsPage from '@/pages/teacher/AnnouncementsPage'
 import AnnouncementEditPage from '@/pages/teacher/AnnouncementEditPage'
 import AnnouncementAddPage from '@/pages/teacher/AnnouncementAddPage'
 import AnnouncementsHistoryPage from '@/pages/teacher/AnnouncementsHistoryPage'
-import StudentMarksPage from '@/pages/teacher/StudentMarksPage'
+import TeacherStudentMarksPage from '@/pages/teacher/StudentMarksPage'
 import SettingsPage from '@/pages/teacher/SettingsPage'
 
 // Student pages
@@ -83,7 +83,7 @@ export const router = createBrowserRouter([
       { path: 'students/:id/edit', element: <StudentEditPage /> },
       { path: 'students/:id/assign-class', element: <StudentAssignClassPage /> },
       { path: 'students/:id/assign-note', element: <StudentAssignNotePage /> },
-      { path: 'students/:id/marks', element: <StudentMarksPage /> },
+      { path: 'students/:id/marks', element: <TeacherStudentMarksPage /> },
       { path: 'classes', element: <ClassesPage /> },
       { path: 'classes/add', element: <ClassAddPage /> },
       { path: 'classes/bulk', element: <ClassBulkPage /> },
