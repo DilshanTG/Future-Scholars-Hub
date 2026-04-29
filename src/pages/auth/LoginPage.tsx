@@ -42,17 +42,6 @@ export default function LoginPage() {
           <div className="flex bg-gray-100 rounded-pill p-1 mb-6">
             <button
               type="button"
-              onClick={() => { setRole('teacher'); setIdentifier(''); setError('') }}
-              className={`flex-1 py-2 px-4 rounded-pill text-sm font-semibold transition-all duration-200 ${
-                role === 'teacher'
-                  ? 'bg-white shadow text-[#6C63FF]'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              👨‍🏫 Teacher
-            </button>
-            <button
-              type="button"
               onClick={() => { setRole('student'); setIdentifier(''); setError('') }}
               className={`flex-1 py-2 px-4 rounded-pill text-sm font-semibold transition-all duration-200 ${
                 role === 'student'
@@ -61,6 +50,17 @@ export default function LoginPage() {
               }`}
             >
               🎒 Student
+            </button>
+            <button
+              type="button"
+              onClick={() => { setRole('teacher'); setIdentifier(''); setError('') }}
+              className={`flex-1 py-2 px-4 rounded-pill text-sm font-semibold transition-all duration-200 ${
+                role === 'teacher'
+                  ? 'bg-white shadow text-[#6C63FF]'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              👨‍🏫 Teacher
             </button>
           </div>
 
