@@ -66,6 +66,7 @@ export interface Recording {
   topic: string
   link: string
   description: string | null
+  meeting_password: string | null
   created_at: string
   assigned_count?: number
 }

@@ -19,7 +19,7 @@ export default function RecordingAddPage() {
   const navigate = useNavigate()
   const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ topic: '', link: '', description: '' })
+  const [form, setForm] = useState({ topic: '', link: '', description: '', meeting_password: '' })
 
   const [students, setStudents] = useState<Student[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -57,7 +57,7 @@ export default function RecordingAddPage() {
     e.preventDefault()
     setSaving(true)
     const { data: rec, error } = await supabase.from('recordings')
-      .insert({ topic: form.topic, link: form.link, description: form.description || null })
+      .insert({ topic: form.topic, link: form.link, description: form.description || null, meeting_password: form.meeting_password || null })
       .select('id').single()
 
     if (error) { toast.error(error.message); setSaving(false); return }
@@ -89,6 +89,10 @@ export default function RecordingAddPage() {
           <div className="space-y-2">
             <Label>Video Link *</Label>
             <Input type="url" value={form.link} onChange={(e) => set('link', e.target.value)} required className="rounded-xl" placeholder="https://youtube.com/..." />
+          </div>
+          <div className="space-y-2">
+            <Label>Meeting Password <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
+            <Input value={form.meeting_password} onChange={(e) => set('meeting_password', e.target.value)} className="rounded-xl" placeholder="e.g. 123456" />
           </div>
           <div className="space-y-2">
             <Label>Description</Label>

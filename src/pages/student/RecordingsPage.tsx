@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { toast } from 'sonner'
 import type { Recording } from '@/types'
 
 export default function StudentRecordingsPage() {
@@ -46,6 +47,19 @@ export default function StudentRecordingsPage() {
             <div key={r.id} className="bg-white rounded-2xl shadow-sm p-4 card-hover">
               <h3 className="font-semibold text-gray-800">{r.topic}</h3>
               {r.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{r.description}</p>}
+              {r.meeting_password && (
+                <div className="flex items-center gap-2 mt-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+                  <span className="text-xs text-amber-700 font-medium">🔐 Password:</span>
+                  <span className="text-xs font-mono font-bold text-amber-800 flex-1">{r.meeting_password}</span>
+                  <button
+                    type="button"
+                    onClick={() => { navigator.clipboard.writeText(r.meeting_password!); toast.success('Password copied!') }}
+                    className="text-xs text-amber-600 hover:text-amber-800 border border-amber-300 rounded-lg px-2 py-0.5 hover:bg-amber-100 transition-colors shrink-0"
+                  >
+                    Copy
+                  </button>
+                </div>
+              )}
               <Button asChild size="sm" className="mt-3 rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
                 <a href={r.link} target="_blank" rel="noopener noreferrer">▶ Watch</a>
               </Button>

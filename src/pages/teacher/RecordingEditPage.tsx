@@ -19,7 +19,7 @@ export default function RecordingEditPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ topic: '', link: '', description: '' })
+  const [form, setForm] = useState({ topic: '', link: '', description: '', meeting_password: '' })
 
   const [students, setStudents] = useState<Student[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -36,7 +36,7 @@ export default function RecordingEditPage() {
         supabase.from('students').select('*').eq('archived', false).order('name'),
         supabase.from('recording_assignments').select('student_id').eq('recording_id', id!),
       ])
-      if (rec) setForm({ topic: rec.topic ?? '', link: rec.link ?? '', description: rec.description ?? '' })
+      if (rec) setForm({ topic: rec.topic ?? '', link: rec.link ?? '', description: rec.description ?? '', meeting_password: rec.meeting_password ?? '' })
       setStudents(sts ?? [])
       setAvailableGrades([...new Set((sts ?? []).map((s) => s.grade))].sort())
       setSelected(new Set((existing ?? []).map((e: { student_id: string }) => e.student_id)))
@@ -64,7 +64,7 @@ export default function RecordingEditPage() {
     e.preventDefault()
     setSaving(true)
     const { error } = await supabase.from('recordings').update({
-      topic: form.topic, link: form.link, description: form.description || null,
+      topic: form.topic, link: form.link, description: form.description || null, meeting_password: form.meeting_password || null,
     }).eq('id', id!)
 
     if (error) { toast.error(error.message); setSaving(false); return }
@@ -104,6 +104,10 @@ export default function RecordingEditPage() {
           <div className="space-y-2">
             <Label>Video Link *</Label>
             <Input type="url" value={form.link} onChange={(e) => set('link', e.target.value)} required className="rounded-xl" />
+          </div>
+          <div className="space-y-2">
+            <Label>Meeting Password <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
+            <Input value={form.meeting_password} onChange={(e) => set('meeting_password', e.target.value)} className="rounded-xl" placeholder="e.g. 123456" />
           </div>
           <div className="space-y-2">
             <Label>Description</Label>
