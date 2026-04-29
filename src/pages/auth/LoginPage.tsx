@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import type { UserRole } from '@/types'
 
 export default function LoginPage() {
-  const [role, setRole] = useState<UserRole>('teacher')
+  const [role, setRole] = useState<UserRole>('student')
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
