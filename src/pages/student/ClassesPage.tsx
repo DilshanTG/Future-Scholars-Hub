@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { colomboFormat } from '@/lib/dates'
 import { getClassStatus } from '@/lib/classStatus'
+import { formatDuration } from '@/lib/constants'
 import type { Class } from '@/types'
 
 export default function StudentClassesPage() {
@@ -50,7 +51,7 @@ export default function StudentClassesPage() {
       <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="border-l-4 border-[#6C63FF] pl-3 flex-1">
           <p className="font-medium text-gray-800">{c.topic}</p>
-          <p className="text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')} · {c.duration_minutes ?? 60} min</p>
+          <p className="text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')} · {formatDuration(c.duration_minutes ?? 60)}</p>
           {c.teacher_note && <p className="text-xs text-muted-foreground mt-1 italic">{c.teacher_note}</p>}
           {status === 'upcoming' && (
             <div className="mt-3 mb-1">

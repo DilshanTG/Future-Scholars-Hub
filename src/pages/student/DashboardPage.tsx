@@ -8,6 +8,7 @@ import { AnnouncementPopup } from '@/components/shared/AnnouncementPopup'
 import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { isPast } from 'date-fns'
 import { colomboFormat, colomboMonth, colomboYear } from '@/lib/dates'
+import { formatDuration } from '@/lib/constants'
 import { getMarkStyle, pct } from '@/lib/markStyle'
 import { getClassStatus } from '@/lib/classStatus'
 import { Link } from 'react-router-dom'
@@ -158,7 +159,7 @@ export default function StudentDashboard() {
           return (
             <div className="border-l-4 border-[#6C63FF] pl-4">
               <p className="font-medium text-gray-800">{nextClass.topic}</p>
-              <p className="text-sm text-muted-foreground">{colomboFormat(nextClass.class_date, 'PPp')} · {nextClass.duration_minutes ?? 60} min</p>
+              <p className="text-sm text-muted-foreground">{colomboFormat(nextClass.class_date, 'PPp')} · {formatDuration(nextClass.duration_minutes ?? 60)}</p>
               {status === 'upcoming' && (
                 <div className="mt-3 mb-2">
                   <CountdownTimer targetDate={nextClass.class_date} />

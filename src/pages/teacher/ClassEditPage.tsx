@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 import { colomboToUTC, colomboDateStr, colomboTimeStr } from '@/lib/dates'
+import { DURATION_OPTIONS } from '@/lib/constants'
 import type { Student } from '@/types'
 
 export default function ClassEditPage() {
@@ -142,11 +143,7 @@ export default function ClassEditPage() {
             <Select value={form.duration_minutes} onValueChange={(v) => set('duration_minutes', v)}>
               <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="30">30 minutes</SelectItem>
-                <SelectItem value="45">45 minutes</SelectItem>
-                <SelectItem value="60">1 hour</SelectItem>
-                <SelectItem value="90">1.5 hours</SelectItem>
-                <SelectItem value="120">2 hours</SelectItem>
+                {DURATION_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

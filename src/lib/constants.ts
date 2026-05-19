@@ -4,6 +4,19 @@ export const ALL_AVATARS = [...BOY_AVATARS, ...GIRL_AVATARS]
 
 export const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','A/L']
 
+export function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (m === 0) return `${h} hr${h > 1 ? 's' : ''}`
+  return `${h} hr ${m} min`
+}
+
+export const DURATION_OPTIONS = Array.from({ length: 12 }, (_, i) => {
+  const mins = (i + 1) * 15
+  return { value: String(mins), label: formatDuration(mins) }
+})
+
 export const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 export const DISTRICTS = [
