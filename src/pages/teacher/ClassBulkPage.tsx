@@ -12,7 +12,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { BulkClassEntry, Student } from '@/types'
 
-const emptyEntry = (): BulkClassEntry => ({ topic: '', class_date: '', class_time: '', zoom_link: '', teacher_note: '' })
+const emptyEntry = (): BulkClassEntry => ({ topic: '', class_date: '', class_time: '', zoom_link: '', teacher_note: '', duration_minutes: '60' })
 
 export default function ClassBulkPage() {
   const navigate = useNavigate()

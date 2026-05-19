@@ -42,7 +42,7 @@ export default function ClassAttendancePage() {
           assigned_count: cls.class_assignments?.[0]?.count ?? 0,
         })
       }
-      setAttendance((att ?? []) as Attendance[])
+      setAttendance((att ?? []) as unknown as Attendance[])
       setLoading(false)
     }
     load()
