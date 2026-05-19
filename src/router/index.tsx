@@ -31,6 +31,7 @@ import AnnouncementEditPage from '@/pages/teacher/AnnouncementEditPage'
 import AnnouncementAddPage from '@/pages/teacher/AnnouncementAddPage'
 import AnnouncementsHistoryPage from '@/pages/teacher/AnnouncementsHistoryPage'
 import TeacherStudentMarksPage from '@/pages/teacher/StudentMarksPage'
+import ClassAttendancePage from '@/pages/teacher/ClassAttendancePage'
 import SettingsPage from '@/pages/teacher/SettingsPage'
 
 // Student pages
@@ -89,6 +90,7 @@ export const router = createBrowserRouter([
       { path: 'classes/bulk', element: <ClassBulkPage /> },
       { path: 'classes/:id/edit', element: <ClassEditPage /> },
       { path: 'classes/:id/assign', element: <ClassAssignPage /> },
+      { path: 'classes/:id/attendance', element: <ClassAttendancePage /> },
       { path: 'payments', element: <PaymentsPage /> },
       { path: 'notes', element: <NotesPage /> },
       { path: 'notes/add', element: <NoteAddPage /> },

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -7,8 +7,8 @@ import { ClassInviteDialog } from '@/components/teacher/ClassInviteDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Plus, Send } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { MoreHorizontal, Plus, Send, Archive, ArchiveRestore } from 'lucide-react'
 import { colomboFormat } from '@/lib/dates'
 import { toast } from 'sonner'
 import type { Class } from '@/types'
@@ -16,26 +16,38 @@ import type { Class } from '@/types'
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([])
   const [loading, setLoading] = useState(true)
+  const [showArchived, setShowArchived] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [inviteClass, setInviteClass] = useState<Class | null>(null)
   const navigate = useNavigate()
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     setLoading(true)
+
+    // Auto-archive classes whose class_date is more than 7 days ago
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    await supabase
+      .from('classes')
+      .update({ archived: true })
+      .lt('class_date', sevenDaysAgo)
+      .eq('archived', false)
+
     const { data } = await supabase
       .from('classes')
-      .select('*, class_assignments(count)')
+      .select('*, class_assignments(count), attendance(count)')
+      .eq('archived', showArchived)
       .order('class_date', { ascending: false })
 
     setClasses((data ?? []).map((c) => ({
       ...c,
       assigned_count: c.class_assignments?.[0]?.count ?? 0,
+      attendance_count: c.attendance?.[0]?.count ?? 0,
     })))
     setLoading(false)
-  }
+  }, [showArchived])
 
-  useEffect(() => { fetchClasses() }, [])
+  useEffect(() => { fetchClasses() }, [fetchClasses])
 
   const handleDelete = async () => {
     if (!deleteId) return
@@ -50,16 +62,30 @@ export default function ClassesPage() {
   return (
     <div>
       <PageHeader
-        title="Classes"
-        subtitle={`${classes.length} total`}
+        title={showArchived ? 'Archived Classes' : 'Classes'}
+        subtitle={`${classes.length} ${showArchived ? 'archived' : 'total'}`}
         action={
           <div className="flex gap-2">
-            <Button asChild variant="outline" className="rounded-pill">
-              <Link to="/teacher/classes/bulk">Bulk Add</Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowArchived(!showArchived)}
+              className="rounded-pill gap-1.5"
+            >
+              {showArchived
+                ? <><ArchiveRestore className="h-3.5 w-3.5" />Active Classes</>
+                : <><Archive className="h-3.5 w-3.5" />Archived</>}
             </Button>
-            <Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
-              <Link to="/teacher/classes/add"><Plus className="h-4 w-4 mr-1" />Add Class</Link>
-            </Button>
+            {!showArchived && (
+              <>
+                <Button asChild variant="outline" className="rounded-pill">
+                  <Link to="/teacher/classes/bulk">Bulk Add</Link>
+                </Button>
+                <Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
+                  <Link to="/teacher/classes/add"><Plus className="h-4 w-4 mr-1" />Add Class</Link>
+                </Button>
+              </>
+            )}
           </div>
         }
       />
@@ -67,7 +93,10 @@ export default function ClassesPage() {
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}</div>
       ) : classes.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📅</p><p>No classes yet</p></div>
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="text-4xl mb-2">{showArchived ? '📦' : '📅'}</p>
+          <p>{showArchived ? 'No archived classes' : 'No classes yet'}</p>
+        </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-card overflow-hidden">
           <table className="w-full hidden md:table">
@@ -76,6 +105,7 @@ export default function ClassesPage() {
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Topic</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Date & Time</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Students</th>
+                <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Attendance</th>
                 <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide px-4 py-3">Zoom</th>
                 <th className="px-4 py-3"></th>
               </tr>
@@ -87,28 +117,44 @@ export default function ClassesPage() {
                   <td className="px-4 py-3 text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')}</td>
                   <td className="px-4 py-3"><Badge variant="outline">{c.assigned_count} students</Badge></td>
                   <td className="px-4 py-3">
+                    <button
+                      onClick={() => navigate(`/teacher/classes/${c.id}/attendance`)}
+                      className="text-xs font-medium text-[#6C63FF] hover:underline"
+                    >
+                      {c.attendance_count}/{c.assigned_count} joined
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
                     {c.zoom_link ? (
                       <a href={c.zoom_link} target="_blank" rel="noopener noreferrer" className="text-[#6C63FF] text-sm hover:underline">Link</a>
                     ) : <span className="text-muted-foreground text-sm">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setInviteClass(c)}
-                        className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 px-2.5"
-                      >
-                        <Send className="w-3.5 h-3.5 mr-1.5" />
-                        Invites
-                      </Button>
+                      {!showArchived && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setInviteClass(c)}
+                          className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 px-2.5"
+                        >
+                          <Send className="w-3.5 h-3.5 mr-1.5" />Invites
+                        </Button>
+                      )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl">
-                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/attendance`)}>Attendance</DropdownMenuItem>
+                          {!showArchived && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                            </>
+                          )}
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -126,24 +172,41 @@ export default function ClassesPage() {
                 <div>
                   <p className="font-medium text-gray-800">{c.topic}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{colomboFormat(c.class_date, 'PPp')}</p>
-                  <Badge variant="outline" className="text-xs mt-1">{c.assigned_count} students</Badge>
+                  <div className="flex gap-2 mt-1 flex-wrap">
+                    <Badge variant="outline" className="text-xs">{c.assigned_count} students</Badge>
+                    <button
+                      onClick={() => navigate(`/teacher/classes/${c.id}/attendance`)}
+                      className="text-xs font-medium text-[#6C63FF] hover:underline"
+                    >
+                      {c.attendance_count}/{c.assigned_count} joined
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setInviteClass(c)}
-                    className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 w-8"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  {!showArchived && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setInviteClass(c)}
+                      className="rounded-lg text-[#6C63FF] border-[#6C63FF]/30 hover:bg-[#6C63FF]/10 h-8 w-8"
+                    >
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><MoreHorizontal className="h-4 w-4" /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-xl">
-                      <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/attendance`)}>Attendance</DropdownMenuItem>
+                      {!showArchived && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/edit`)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/teacher/classes/${c.id}/assign`)}>Assign Students</DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-red-600" onClick={() => setDeleteId(c.id)}>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

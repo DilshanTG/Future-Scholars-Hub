@@ -20,7 +20,7 @@ export default function ClassAddPage() {
   const navigate = useNavigate()
   const { fire: fireConfetti } = useConfetti()
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ topic: '', class_date: '', class_time: '', zoom_link: '', teacher_note: '' })
+  const [form, setForm] = useState({ topic: '', class_date: '', class_time: '', duration_minutes: '60', zoom_link: '', teacher_note: '' })
   const [students, setStudents] = useState<Student[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [loadingStudents, setLoadingStudents] = useState(true)
@@ -71,7 +71,7 @@ export default function ClassAddPage() {
     const class_date = colomboToUTC(form.class_date, form.class_time || '00:00')
     const { data: cls, error } = await supabase
       .from('classes')
-      .insert({ topic: form.topic, class_date, zoom_link: form.zoom_link || null, teacher_note: form.teacher_note || null })
+      .insert({ topic: form.topic, class_date, duration_minutes: parseInt(form.duration_minutes), zoom_link: form.zoom_link || null, teacher_note: form.teacher_note || null })
       .select('id')
       .single()
 
@@ -110,6 +110,19 @@ export default function ClassAddPage() {
               <Label>Time</Label>
               <Input type="time" value={form.class_time} onChange={(e) => set('class_time', e.target.value)} className="rounded-xl" />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Duration</Label>
+            <Select value={form.duration_minutes} onValueChange={(v) => set('duration_minutes', v)}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30">30 minutes</SelectItem>
+                <SelectItem value="45">45 minutes</SelectItem>
+                <SelectItem value="60">1 hour</SelectItem>
+                <SelectItem value="90">1.5 hours</SelectItem>
+                <SelectItem value="120">2 hours</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Zoom Link</Label>

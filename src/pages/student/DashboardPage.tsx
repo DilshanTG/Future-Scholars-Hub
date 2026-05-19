@@ -9,6 +9,7 @@ import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { isPast } from 'date-fns'
 import { colomboFormat, colomboMonth, colomboYear } from '@/lib/dates'
 import { getMarkStyle, pct } from '@/lib/markStyle'
+import { getClassStatus } from '@/lib/classStatus'
 import { Link } from 'react-router-dom'
 import type { Class, Announcement, Mark } from '@/types'
 
@@ -24,6 +25,7 @@ export default function StudentDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [latestMark, setLatestMark] = useState<Mark | null>(null)
   const [loading, setLoading] = useState(true)
+  const [, setTick] = useState(0)
 
   useEffect(() => {
     async function load() {
@@ -37,9 +39,9 @@ export default function StudentDashboard() {
         supabase.from('classes')
           .select('*, class_assignments!inner(student_id)')
           .eq('class_assignments.student_id', user.id)
-          .gt('class_date', now.toISOString())
+          .gte('class_date', new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString())
           .order('class_date')
-          .limit(1),
+          .limit(5),
         supabase.from('announcements')
           .select('*')
           .or(`expire_date.is.null,expire_date.gt.${now.toISOString()}`)
@@ -50,13 +52,30 @@ export default function StudentDashboard() {
       ])
 
       setStudentInfo({ status: student?.status ?? 'active', payment_status: payment?.status ?? 'unpaid' })
-      setNextClass(classes?.[0] ?? null)
+      // Pick the first class that isn't ended (could be upcoming or live)
+      const active = (classes ?? []).find((c) => getClassStatus(c.class_date, c.duration_minutes ?? 60) !== 'ended')
+      setNextClass(active ?? null)
       setAnnouncements(anns ?? [])
       setLatestMark(mark ?? null)
       setLoading(false)
     }
     load()
   }, [user])
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const handleJoin = async (classId: string, zoomLink: string) => {
+    if (user) {
+      await supabase.from('attendance').upsert(
+        { class_id: classId, student_id: user.id },
+        { onConflict: 'class_id,student_id' }
+      )
+    }
+    window.open(zoomLink, '_blank')
+  }
 
   if (loading) {
     return (
@@ -134,20 +153,33 @@ export default function StudentDashboard() {
       {/* Next class */}
       <div className="bg-white rounded-2xl shadow-sm p-4">
         <h2 className="font-semibold text-gray-800 mb-3">Next Class</h2>
-        {nextClass ? (
-          <div className="border-l-4 border-[#6C63FF] pl-4">
-            <p className="font-medium text-gray-800">{nextClass.topic}</p>
-            <p className="text-sm text-muted-foreground">{colomboFormat(nextClass.class_date, 'PPp')}</p>
-            <div className="mt-3 mb-2">
-              <CountdownTimer targetDate={nextClass.class_date} />
+        {nextClass ? (() => {
+          const status = getClassStatus(nextClass.class_date, nextClass.duration_minutes ?? 60)
+          return (
+            <div className="border-l-4 border-[#6C63FF] pl-4">
+              <p className="font-medium text-gray-800">{nextClass.topic}</p>
+              <p className="text-sm text-muted-foreground">{colomboFormat(nextClass.class_date, 'PPp')} · {nextClass.duration_minutes ?? 60} min</p>
+              {status === 'upcoming' && (
+                <div className="mt-3 mb-2">
+                  <CountdownTimer targetDate={nextClass.class_date} />
+                </div>
+              )}
+              {status === 'live' && (
+                <span className="inline-flex items-center gap-1.5 mt-2 mb-2 text-xs font-semibold text-red-600">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  Class is Live Now!
+                </span>
+              )}
+              {status === 'live' && nextClass.zoom_link && (
+                <div className="mt-1">
+                  <Button size="sm" onClick={() => handleJoin(nextClass.id, nextClass.zoom_link!)} className="rounded-pill bg-red-500 hover:bg-red-600 text-white">
+                    🔴 Join Now
+                  </Button>
+                </div>
+              )}
             </div>
-            {nextClass.zoom_link && (
-              <Button asChild size="sm" className="mt-2 rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
-                <a href={nextClass.zoom_link} target="_blank" rel="noopener noreferrer">Join Class</a>
-              </Button>
-            )}
-          </div>
-        ) : (
+          )
+        })() : (
           <p className="text-sm text-muted-foreground">No upcoming classes scheduled</p>
         )}
       </div>

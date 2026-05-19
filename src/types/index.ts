@@ -38,8 +38,19 @@ export interface Class {
   class_date: string
   zoom_link: string | null
   teacher_note: string | null
+  duration_minutes: number
+  archived: boolean
   created_at: string
   assigned_count?: number
+  attendance_count?: number
+}
+
+export interface Attendance {
+  id: string
+  class_id: string
+  student_id: string
+  joined_at: string
+  students?: { name: string; avatar: string; grade: string }
 }
 
 export interface Payment {
@@ -96,4 +107,5 @@ export interface BulkClassEntry {
   class_time: string
   zoom_link: string
   teacher_note: string
+  duration_minutes: string
 }
