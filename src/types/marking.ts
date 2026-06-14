@@ -21,12 +21,3 @@ export interface MarkPage {
   strokes: Stroke[]
   undone: Stroke[]
 }
-
-export interface MarkedWorksheetRow {
-  id: string
-  student_id: string
-  title: string | null
-  file_url: string
-  page_count: number | null
-  created_at: string
-}

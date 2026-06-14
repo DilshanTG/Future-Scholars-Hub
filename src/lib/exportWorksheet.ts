@@ -13,16 +13,23 @@ function triggerDownload(bytes: Uint8Array, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
-interface ExportResult { uploaded: boolean; skipped: string[] }
+export interface MarkDetails {
+  title: string
+  score: number
+  total: number
+}
+
+interface ExportResult { skipped: string[]; fileUrl: string }
 
 /**
- * Build the PDF, upload to Supabase, record the row, and download locally.
+ * Build the marked PDF, upload it to Supabase, save it as a student mark
+ * (title/score/total + file_url), and download a local copy.
  * Throws on upload/db failure so the caller can keep the local session for retry.
  */
 export async function exportWorksheet(
   studentId: string,
   pages: MarkPage[],
-  title: string,
+  mark: MarkDetails,
   onProgress?: (done: number, total: number) => void,
 ): Promise<ExportResult> {
   const skipped: string[] = []
@@ -36,14 +43,15 @@ export async function exportWorksheet(
 
   const { data: { publicUrl } } = supabase.storage.from('marked-worksheets').getPublicUrl(path)
 
-  const { error: dbError } = await supabase.from('marked_worksheets').insert({
+  const { error: dbError } = await supabase.from('marks').insert({
     student_id: studentId,
-    title,
+    title: mark.title,
+    score: mark.score,
+    total: mark.total,
     file_url: publicUrl,
-    page_count: pages.length,
   })
   if (dbError) throw dbError
 
-  triggerDownload(bytes, `${title || 'worksheet'}.pdf`)
-  return { uploaded: true, skipped }
+  triggerDownload(bytes, `${mark.title || 'worksheet'}.pdf`)
+  return { skipped, fileUrl: publicUrl }
 }

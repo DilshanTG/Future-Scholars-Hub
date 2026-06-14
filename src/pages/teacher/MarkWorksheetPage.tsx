@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useMarkStore } from '@/store/markStore'
-import { saveSession, clearSession } from '@/lib/markPersistence'
+import { saveSession } from '@/lib/markPersistence'
 import { exportWorksheet } from '@/lib/exportWorksheet'
 import PageUploadDropzone from '@/components/teacher/mark/PageUploadDropzone'
 import PageReorderGrid from '@/components/teacher/mark/PageReorderGrid'
@@ -14,10 +17,13 @@ type Step = 'pages' | 'mark'
 
 export default function MarkWorksheetPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { pages, addFiles, reorderPages, rotatePage, removePage, setActivePage, initSession, startFresh, studentId } = useMarkStore()
   const [step, setStep] = useState<Step>('pages')
   const [resumePrompt, setResumePrompt] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [submitOpen, setSubmitOpen] = useState(false)
+  const [markForm, setMarkForm] = useState({ title: '', score: '', total: '100' })
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -47,16 +53,21 @@ export default function MarkWorksheetPage() {
     rotatePage(pid)
   }
 
-  const handleGenerate = async () => {
+  const handleSubmit = async () => {
     if (!id || pages.length === 0) return
+    const score = parseFloat(markForm.score)
+    const total = parseFloat(markForm.total)
+    if (!markForm.title.trim()) { toast.error('Enter a test / subject title'); return }
+    if (isNaN(score) || isNaN(total) || total <= 0) { toast.error('Enter valid score and total'); return }
+    if (score > total) { toast.error('Score cannot exceed total'); return }
     setGenerating(true)
     try {
-      const title = `Marked Worksheet ${new Date().toLocaleDateString()}`
-      const { skipped } = await exportWorksheet(id, pages, title)
+      const { skipped } = await exportWorksheet(id, pages, { title: markForm.title.trim(), score, total })
       if (skipped.length) toast.warning(`${skipped.length} page(s) could not be rendered and were skipped`)
-      await clearSession(id)
-      useMarkStore.getState().endSession()
-      toast.success('PDF generated, uploaded, and downloaded')
+      await useMarkStore.getState().endSession()
+      setSubmitOpen(false)
+      toast.success('Mark added with marked PDF!')
+      navigate(`/teacher/students/${id}/marks`)
     } catch (e) {
       toast.error('Upload failed — your work is saved, please retry: ' + (e as Error).message)
     } finally {
@@ -75,9 +86,9 @@ export default function MarkWorksheetPage() {
           size="sm"
           className="ml-auto rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]"
           disabled={pages.length === 0 || generating}
-          onClick={handleGenerate}
+          onClick={() => setSubmitOpen(true)}
         >
-          {generating ? 'Generating…' : 'Generate PDF'}
+          Submit
         </Button>
       </div>
 
@@ -109,6 +120,57 @@ export default function MarkWorksheetPage() {
       )}
 
       {step === 'mark' && <MarkingBoard />}
+
+      <Dialog open={submitOpen} onOpenChange={(o) => { if (!generating) setSubmitOpen(o) }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Mark</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Test / Subject Title *</Label>
+              <Input
+                value={markForm.title}
+                onChange={(e) => setMarkForm((f) => ({ ...f, title: e.target.value }))}
+                className="rounded-xl"
+                placeholder="e.g. Mathematics — Chapter 5"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Score *</Label>
+                <Input
+                  type="number" min="0" step="0.5"
+                  value={markForm.score}
+                  onChange={(e) => setMarkForm((f) => ({ ...f, score: e.target.value }))}
+                  className="rounded-xl" placeholder="85"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Out of *</Label>
+                <Input
+                  type="number" min="1" step="0.5"
+                  value={markForm.total}
+                  onChange={(e) => setMarkForm((f) => ({ ...f, total: e.target.value }))}
+                  className="rounded-xl" placeholder="100"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-1">
+              <Button
+                className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5] flex-1"
+                disabled={generating}
+                onClick={handleSubmit}
+              >
+                {generating ? 'Generating PDF…' : '+ Add Mark'}
+              </Button>
+              <Button variant="outline" className="rounded-pill" disabled={generating} onClick={() => setSubmitOpen(false)}>
+                Back
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

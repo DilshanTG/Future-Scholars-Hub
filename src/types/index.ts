@@ -98,6 +98,7 @@ export interface Mark {
   title: string
   score: number
   total: number
+  file_url?: string | null
   created_at: string
 }
 
