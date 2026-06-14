@@ -137,6 +137,9 @@ export default function StudentViewPage() {
           <Button asChild size="sm" variant="outline" className="rounded-pill">
             <Link to={`/teacher/students/${id}/assign-note`}>+ Assign Note</Link>
           </Button>
+          <Button asChild size="sm" className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]">
+            <Link to={`/teacher/students/${id}/mark`}>Mark Worksheet</Link>
+          </Button>
         </div>
       </div>
 
@@ -233,7 +236,7 @@ export default function StudentViewPage() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="font-bold text-gray-800">{m.score}<span className="text-muted-foreground font-normal text-xs">/{m.total}</span></p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${style.badge}`}>{style.emoji} {percent}%</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${style.badge}`}>{style.label} · {percent}%</span>
                       </div>
                     </div>
                   )
