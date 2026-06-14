@@ -44,6 +44,7 @@ import StudentAnnouncementsPage from '@/pages/student/AnnouncementsPage'
 import StudentPaymentPage from '@/pages/student/PaymentPage'
 import StudentProfilePage from '@/pages/student/ProfilePage'
 import StudentMarksPage from '@/pages/student/MarksPage'
+import MarkedWorkPage from '@/pages/student/MarkedWorkPage'
 
 function RequireTeacher({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
@@ -122,6 +123,7 @@ export const router = createBrowserRouter([
       { path: 'payment', element: <StudentPaymentPage /> },
       { path: 'profile', element: <StudentProfilePage /> },
       { path: 'marks', element: <StudentMarksPage /> },
+      { path: 'marked-work', element: <MarkedWorkPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },
