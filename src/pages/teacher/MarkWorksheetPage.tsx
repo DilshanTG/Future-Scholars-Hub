@@ -7,6 +7,7 @@ import { useMarkStore } from '@/store/markStore'
 import { saveSession } from '@/lib/markPersistence'
 import PageUploadDropzone from '@/components/teacher/mark/PageUploadDropzone'
 import PageReorderGrid from '@/components/teacher/mark/PageReorderGrid'
+import MarkingBoard from '@/components/teacher/mark/MarkingBoard'
 
 type Step = 'pages' | 'mark'
 
@@ -70,7 +71,7 @@ export default function MarkWorksheetPage() {
         </div>
       )}
 
-      {step === 'mark' && <div className="text-sm text-gray-500">Marking board added in next task.</div>}
+      {step === 'mark' && <MarkingBoard />}
     </div>
   )
 }
