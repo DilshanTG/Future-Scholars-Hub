@@ -32,6 +32,7 @@ import AnnouncementAddPage from '@/pages/teacher/AnnouncementAddPage'
 import AnnouncementsHistoryPage from '@/pages/teacher/AnnouncementsHistoryPage'
 import TeacherStudentMarksPage from '@/pages/teacher/StudentMarksPage'
 import MarkWorksheetPage from '@/pages/teacher/MarkWorksheetPage'
+import MarkEntryPage from '@/pages/teacher/MarkEntryPage'
 import ClassAttendancePage from '@/pages/teacher/ClassAttendancePage'
 import SettingsPage from '@/pages/teacher/SettingsPage'
 
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
       { path: 'students/:id/assign-class', element: <StudentAssignClassPage /> },
       { path: 'students/:id/assign-note', element: <StudentAssignNotePage /> },
       { path: 'students/:id/marks', element: <TeacherStudentMarksPage /> },
+      { path: 'mark', element: <MarkEntryPage /> },
       { path: 'students/:id/mark', element: <MarkWorksheetPage /> },
       { path: 'classes', element: <ClassesPage /> },
       { path: 'classes/add', element: <ClassAddPage /> },
