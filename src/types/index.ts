@@ -62,12 +62,15 @@ export interface Payment {
   updated_at: string
 }
 
+export type NoteCategory = 'note' | 'paper'
+
 export interface Note {
   id: string
   title: string
   link: string | null
   file_url: string | null
   details: string | null
+  category: NoteCategory
   created_at: string
   assigned_count?: number
 }

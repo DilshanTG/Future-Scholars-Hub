@@ -21,7 +21,7 @@ export default function NoteEditPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ title: '', link: '', details: '' })
+  const [form, setForm] = useState({ title: '', link: '', details: '', category: 'note' })
   const [existingFileUrl, setExistingFileUrl] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [removeFile, setRemoveFile] = useState(false)
@@ -42,7 +42,7 @@ export default function NoteEditPage() {
         supabase.from('note_assignments').select('student_id').eq('note_id', id!),
       ])
       if (note) {
-        setForm({ title: note.title ?? '', link: note.link ?? '', details: note.details ?? '' })
+        setForm({ title: note.title ?? '', link: note.link ?? '', details: note.details ?? '', category: note.category ?? 'note' })
         setExistingFileUrl(note.file_url ?? null)
       }
       setStudents(sts ?? [])
@@ -86,7 +86,7 @@ export default function NoteEditPage() {
     }
 
     const { error } = await supabase.from('notes').update({
-      title: form.title, link: form.link || null, details: form.details || null, file_url,
+      title: form.title, link: form.link || null, details: form.details || null, file_url, category: form.category,
     }).eq('id', id!)
 
     if (error) { toast.error(error.message); setSaving(false); return }
@@ -120,6 +120,16 @@ export default function NoteEditPage() {
 
         <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
           <h3 className="font-semibold text-gray-700">Note Details</h3>
+          <div className="space-y-2">
+            <Label>Type *</Label>
+            <Select value={form.category} onValueChange={(v) => set('category', v)}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="note">Note</SelectItem>
+                <SelectItem value="paper">Paper</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label>Title *</Label>
             <Input value={form.title} onChange={(e) => set('title', e.target.value)} required className="rounded-xl" />

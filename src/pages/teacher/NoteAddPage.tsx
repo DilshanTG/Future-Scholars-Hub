@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useConfetti } from '@/hooks/useConfetti'
 import { supabase } from '@/lib/supabase'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -21,7 +21,9 @@ export default function NoteAddPage() {
   const { fire: fireConfetti } = useConfetti()
   const fileRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({ title: '', link: '', details: '' })
+  const [searchParams] = useSearchParams()
+  const initialCategory = searchParams.get('type') === 'paper' ? 'paper' : 'note'
+  const [form, setForm] = useState({ title: '', link: '', details: '', category: initialCategory })
   const [file, setFile] = useState<File | null>(null)
 
   const [students, setStudents] = useState<Student[]>([])
@@ -72,7 +74,7 @@ export default function NoteAddPage() {
     }
 
     const { data: note, error } = await supabase.from('notes')
-      .insert({ title: form.title, link: form.link || null, details: form.details || null, file_url })
+      .insert({ title: form.title, link: form.link || null, details: form.details || null, file_url, category: form.category })
       .select('id').single()
 
     if (error) { toast.error(error.message); setSaving(false); return }
@@ -98,6 +100,16 @@ export default function NoteAddPage() {
         {/* Note details */}
         <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
           <h3 className="font-semibold text-gray-700">Note Details</h3>
+          <div className="space-y-2">
+            <Label>Type *</Label>
+            <Select value={form.category} onValueChange={(v) => set('category', v)}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="note">Note</SelectItem>
+                <SelectItem value="paper">Paper</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label>Title *</Label>
             <Input value={form.title} onChange={(e) => set('title', e.target.value)} required className="rounded-xl" placeholder="Note title" />

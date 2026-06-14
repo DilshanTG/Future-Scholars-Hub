@@ -7,16 +7,20 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MoreHorizontal, Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Note } from '@/types'
+import type { Note, NoteCategory } from '@/types'
 
 export default function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [tab, setTab] = useState<NoteCategory>('note')
   const navigate = useNavigate()
+
+  const visible = notes.filter((n) => (n.category ?? 'note') === tab)
 
   const fetchNotes = async () => {
     setLoading(true)
@@ -39,16 +43,24 @@ export default function NotesPage() {
   return (
     <div>
       <PageHeader
-        title="Notes"
-        action={<Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]"><Link to="/teacher/notes/add"><Plus className="h-4 w-4 mr-1" />Add Note</Link></Button>}
+        title="Notes & Papers"
+        action={<Button asChild className="rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]"><Link to={`/teacher/notes/add?type=${tab}`}><Plus className="h-4 w-4 mr-1" />Add {tab === 'paper' ? 'Paper' : 'Note'}</Link></Button>}
       />
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as NoteCategory)} className="mb-4">
+        <TabsList className="rounded-pill">
+          <TabsTrigger value="note" className="rounded-pill">Notes</TabsTrigger>
+          <TabsTrigger value="paper" className="rounded-pill">Papers</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
-      ) : notes.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📝</p><p>No notes yet</p></div>
+      ) : visible.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📝</p><p>No {tab === 'paper' ? 'papers' : 'notes'} yet</p></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {notes.map((n) => (
+          {visible.map((n) => (
             <div key={n.id} className="bg-white rounded-2xl shadow-card p-4 card-hover transition-all duration-300">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
