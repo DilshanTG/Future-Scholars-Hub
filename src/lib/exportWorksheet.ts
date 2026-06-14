@@ -9,7 +9,8 @@ function triggerDownload(bytes: Uint8Array, filename: string) {
   a.href = url
   a.download = filename
   a.click()
-  URL.revokeObjectURL(url)
+  // Defer revoke so Firefox/Safari don't cancel the in-flight download.
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
 interface ExportResult { uploaded: boolean; skipped: string[] }

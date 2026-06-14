@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { MarkPage, Stroke, ToolMode } from '@/types/marking'
 import { reorder, pushStroke, undoLast, redoLast } from '@/lib/pageOps'
-import { ingestFiles } from '@/lib/ingestFiles'
+import { ingestFiles, makeThumb } from '@/lib/ingestFiles'
 import { saveSession, loadSession, clearSession } from '@/lib/markPersistence'
 
 interface MarkState {
@@ -35,6 +35,13 @@ function mapPage(pages: MarkPage[], id: string, fn: (p: MarkPage) => MarkPage): 
   return pages.map((p) => (p.id === id ? fn(p) : p))
 }
 
+/** Release the object-URL thumbnails held by the given pages. */
+function revokeThumbs(pages: MarkPage[]) {
+  for (const p of pages) {
+    if (p.thumbUrl) URL.revokeObjectURL(p.thumbUrl)
+  }
+}
+
 export const useMarkStore = create<MarkState>((set, get) => ({
   studentId: '',
   pages: [],
@@ -43,9 +50,14 @@ export const useMarkStore = create<MarkState>((set, get) => ({
   status: 'idle',
 
   initSession: async (studentId) => {
+    revokeThumbs(get().pages)
     const saved = await loadSession(studentId)
     if (saved) {
-      set({ studentId, pages: saved, activePageId: saved[0]?.id ?? null })
+      // Persisted pages have no thumbUrl (it's a transient object URL); rebuild them.
+      const withThumbs = await Promise.all(
+        saved.map(async (p) => ({ ...p, thumbUrl: await makeThumb(p.imageBlob) })),
+      )
+      set({ studentId, pages: withThumbs, activePageId: withThumbs[0]?.id ?? null })
       return true
     }
     set({ studentId, pages: [], activePageId: null })
@@ -53,6 +65,7 @@ export const useMarkStore = create<MarkState>((set, get) => ({
   },
 
   startFresh: async (studentId) => {
+    revokeThumbs(get().pages)
     await clearSession(studentId)
     set({ studentId, pages: [], activePageId: null })
   },
@@ -64,6 +77,8 @@ export const useMarkStore = create<MarkState>((set, get) => ({
   },
 
   removePage: (id) => {
+    const removed = get().pages.find((p) => p.id === id)
+    if (removed?.thumbUrl) URL.revokeObjectURL(removed.thumbUrl)
     set((s) => {
       const pages = s.pages.filter((p) => p.id !== id)
       const activePageId = s.activePageId === id ? pages[0]?.id ?? null : s.activePageId
@@ -104,7 +119,8 @@ export const useMarkStore = create<MarkState>((set, get) => ({
   },
 
   endSession: async () => {
-    const { studentId } = get()
+    const { studentId, pages } = get()
+    revokeThumbs(pages)
     if (studentId) await clearSession(studentId)
     set({ pages: [], activePageId: null, studentId: '' })
   },

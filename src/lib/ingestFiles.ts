@@ -11,7 +11,8 @@ async function bitmapDims(blob: Blob): Promise<{ width: number; height: number }
   return dims
 }
 
-async function makeThumb(blob: Blob): Promise<string> {
+/** Build a small object-URL thumbnail for a page image. Caller must revoke it. */
+export async function makeThumb(blob: Blob): Promise<string> {
   const bmp = await createImageBitmap(blob)
   const scale = Math.min(1, THUMB_MAX / Math.max(bmp.width, bmp.height))
   const canvas = document.createElement('canvas')

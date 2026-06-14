@@ -37,6 +37,16 @@ export default function MarkWorksheetPage() {
     toast.promise(addFiles(files), { loading: 'Processing files…', success: 'Pages added', error: 'Some files could not be read' })
   }
 
+  // Rotating after marking would misalign existing strokes; block it with a hint.
+  const handleRotate = (pid: string) => {
+    const page = pages.find((p) => p.id === pid)
+    if (page && page.strokes.length > 0) {
+      toast.error('Clear this page’s marks before rotating it')
+      return
+    }
+    rotatePage(pid)
+  }
+
   const handleGenerate = async () => {
     if (!id || pages.length === 0) return
     setGenerating(true)
@@ -91,7 +101,7 @@ export default function MarkWorksheetPage() {
           <PageReorderGrid
             pages={pages}
             onReorder={reorderPages}
-            onRotate={rotatePage}
+            onRotate={handleRotate}
             onRemove={removePage}
             onMark={(pid) => { setActivePage(pid); setStep('mark') }}
           />
