@@ -3,36 +3,56 @@ import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, LogOut } from 'lucide-react'
+import { LayoutDashboard, GraduationCap, CalendarDays, Wallet, FileText, PlayCircle, Megaphone, Settings, LogOut, Menu, PenLine } from 'lucide-react'
 import { Footer } from '@/components/layout/Footer'
 
 const navLinks = [
-  { to: '/teacher/dashboard', label: 'Dashboard', emoji: '📊' },
-  { to: '/teacher/students', label: 'Students', emoji: '👨‍🎓' },
-  { to: '/teacher/classes', label: 'Classes', emoji: '📅' },
-  { to: '/teacher/payments', label: 'Payments', emoji: '💰' },
-  { to: '/teacher/notes', label: 'Notes', emoji: '📝' },
-  { to: '/teacher/recordings', label: 'Recordings', emoji: '🎥' },
-  { to: '/teacher/announcements', label: 'Announcements', emoji: '📢' },
-  { to: '/teacher/settings', label: 'Settings', emoji: '⚙️' },
+  { to: '/teacher/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+  { to: '/teacher/students', label: 'Students', Icon: GraduationCap },
+  { to: '/teacher/mark', label: 'Mark Worksheet', Icon: PenLine },
+  { to: '/teacher/classes', label: 'Classes', Icon: CalendarDays },
+  { to: '/teacher/payments', label: 'Payments', Icon: Wallet },
+  { to: '/teacher/notes', label: 'Notes', Icon: FileText },
+  { to: '/teacher/recordings', label: 'Recordings', Icon: PlayCircle },
+  { to: '/teacher/announcements', label: 'Announcements', Icon: Megaphone },
+  { to: '/teacher/settings', label: 'Settings', Icon: Settings },
 ]
 
-function NavLinkItem({ to, label, emoji, onClick }: { to: string; label: string; emoji: string; onClick?: () => void }) {
+function SidebarContent({ onNavClick, onSignOut, userName, userAvatar }: { onNavClick?: () => void; onSignOut: () => void; userName?: string; userAvatar?: string }) {
   return (
-    <NavLink
-      to={to}
-      onClick={onClick}
-      className={({ isActive }) =>
-        `flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-          isActive
-            ? 'bg-[#6C63FF] text-white shadow-sm'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-        }`
-      }
-    >
-      <span>{emoji}</span>
-      <span>{label}</span>
-    </NavLink>
+    <div className="flex flex-col h-full bg-white">
+      <div className="px-6 py-6 border-b border-gray-100">
+        <Link to="/teacher/dashboard" onClick={onNavClick} className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-[#6C63FF] flex items-center justify-center text-2xl shadow-sm">🎓</div>
+          <p className="font-bold text-gray-800 text-base leading-tight">Future Scholars Hub</p>
+        </Link>
+      </div>
+      <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
+        {navLinks.map(({ to, label, Icon }) => (
+          <NavLink key={to} to={to} onClick={onNavClick}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-150 ${
+                isActive ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`
+            }
+          >
+            <Icon className="w-5 h-5 shrink-0" />{label}
+          </NavLink>
+        ))}
+      </nav>
+      <div className="p-4 border-t border-gray-100 space-y-1">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl">
+          <div className="w-10 h-10 rounded-xl bg-[#6C63FF]/10 flex items-center justify-center text-xl shrink-0">{userAvatar}</div>
+          <div className="min-w-0">
+            <p className="text-base font-semibold text-gray-800 truncate">{userName}</p>
+            <p className="text-sm text-gray-400">Teacher</p>
+          </div>
+        </div>
+        <button onClick={onSignOut} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium text-red-500 hover:bg-red-50 transition-colors">
+          <LogOut className="w-5 h-5 shrink-0" />Sign Out
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -47,81 +67,31 @@ export default function TeacherLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <span className="text-2xl">🎓</span>
-            <span className="font-bold text-gray-800">Future Scholars Hub</span>
-          </Link>
+    <div className="min-h-screen bg-gray-50 flex">
+      <aside className="hidden lg:flex lg:w-72 shrink-0 flex-col fixed inset-y-0 left-0 border-r border-gray-100 shadow-sm z-30">
+        <SidebarContent onSignOut={handleSignOut} userName={user?.name} userAvatar={user?.avatar} />
+      </aside>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <NavLinkItem key={link.to} {...link} />
-            ))}
-          </div>
-
-          {/* Right side */}
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-72">
+        <header className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600">
-              <span className="text-xl">{user?.avatar}</span>
-              <span className="font-medium">{user?.name}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="hidden sm:flex gap-1 text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden md:inline">Logout</span>
-            </Button>
-
-            {/* Mobile hamburger */}
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72">
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center gap-3 pb-4 mb-4 border-b">
-                    <span className="text-3xl">{user?.avatar}</span>
-                    <div>
-                      <p className="font-semibold text-gray-800">{user?.name}</p>
-                      <p className="text-xs text-muted-foreground">Teacher</p>
-                    </div>
-                  </div>
-                  <nav className="flex flex-col gap-1 flex-1">
-                    {navLinks.map((link) => (
-                      <NavLinkItem key={link.to} {...link} onClick={() => setMobileOpen(false)} />
-                    ))}
-                  </nav>
-                  <Button
-                    variant="ghost"
-                    onClick={handleSignOut}
-                    className="mt-4 text-red-500 hover:text-red-600 hover:bg-red-50 justify-start gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <div className="w-7 h-7 rounded-lg bg-[#6C63FF] flex items-center justify-center text-sm">🎓</div>
+            <span className="font-bold text-gray-800 text-sm">Future Scholars Hub</span>
           </div>
-        </div>
-      </nav>
-
-      {/* Page content */}
-      <main className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
-        <Outlet />
-      </main>
-
-      <Footer />
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9"><Menu className="h-5 w-5" /></Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0 border-r">
+              <SidebarContent onNavClick={() => setMobileOpen(false)} onSignOut={handleSignOut} userName={user?.name} userAvatar={user?.avatar} />
+            </SheetContent>
+          </Sheet>
+        </header>
+        <main className="flex-1 px-5 lg:px-10 py-6 w-full">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
   )
 }

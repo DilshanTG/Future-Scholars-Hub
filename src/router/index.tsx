@@ -38,6 +38,7 @@ import SettingsPage from '@/pages/teacher/SettingsPage'
 
 // Student pages
 import StudentDashboard from '@/pages/student/DashboardPage'
+import StudentDashboardV2 from '@/pages/student/DashboardV2Page'
 import StudentClassesPage from '@/pages/student/ClassesPage'
 import StudentNotesPage from '@/pages/student/NotesPage'
 import StudentRecordingsPage from '@/pages/student/RecordingsPage'
@@ -45,7 +46,7 @@ import StudentAnnouncementsPage from '@/pages/student/AnnouncementsPage'
 import StudentPaymentPage from '@/pages/student/PaymentPage'
 import StudentProfilePage from '@/pages/student/ProfilePage'
 import StudentMarksPage from '@/pages/student/MarksPage'
-import MarkedWorkPage from '@/pages/student/MarkedWorkPage'
+import StudentDashboardPreviewPage from '@/pages/preview/StudentDashboardPreviewPage'
 
 function RequireTeacher({ children }: { children: React.ReactNode }) {
   const { user, initialized } = useAuthStore()
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicRoute><LoginPage /></PublicRoute>,
+  },
+  {
+    path: '/preview/cute-dashboard',
+    element: <StudentDashboardPreviewPage />,
   },
   {
     path: '/teacher',
@@ -118,6 +123,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <StudentDashboard /> },
+      { path: 'dashboard/v2', element: <StudentDashboardV2 /> },
       { path: 'classes', element: <StudentClassesPage /> },
       { path: 'notes', element: <StudentNotesPage /> },
       { path: 'recordings', element: <StudentRecordingsPage /> },
@@ -125,7 +131,6 @@ export const router = createBrowserRouter([
       { path: 'payment', element: <StudentPaymentPage /> },
       { path: 'profile', element: <StudentProfilePage /> },
       { path: 'marks', element: <StudentMarksPage /> },
-      { path: 'marked-work', element: <MarkedWorkPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

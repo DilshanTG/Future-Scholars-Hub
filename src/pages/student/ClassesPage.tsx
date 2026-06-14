@@ -8,6 +8,7 @@ import { CountdownTimer } from '@/components/shared/CountdownTimer'
 import { colomboFormat } from '@/lib/dates'
 import { getClassStatus } from '@/lib/classStatus'
 import { formatDuration } from '@/lib/constants'
+import { CalendarDays, Clock } from 'lucide-react'
 import type { Class } from '@/types'
 
 export default function StudentClassesPage() {
@@ -18,99 +19,101 @@ export default function StudentClassesPage() {
 
   useEffect(() => {
     if (!user) return
-    supabase
-      .from('classes')
-      .select('*, class_assignments!inner(student_id)')
+    supabase.from('classes').select('*, class_assignments!inner(student_id)')
       .eq('class_assignments.student_id', user.id)
       .order('class_date', { ascending: false })
       .then(({ data }) => { setClasses(data ?? []); setLoading(false) })
   }, [user])
 
-  // Re-evaluate status every 30 s so live/ended states update automatically
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 30_000)
+    const id = setInterval(() => setTick(t => t + 1), 30_000)
     return () => clearInterval(id)
   }, [])
 
   const handleJoin = async (classId: string, zoomLink: string) => {
-    if (user) {
-      await supabase.from('attendance').upsert(
-        { class_id: classId, student_id: user.id },
-        { onConflict: 'class_id,student_id' }
-      )
-    }
+    if (user) await supabase.from('attendance').upsert({ class_id: classId, student_id: user.id }, { onConflict: 'class_id,student_id' })
     window.open(zoomLink, '_blank')
   }
 
-  const upcoming = classes.filter((c) => getClassStatus(c.class_date, c.duration_minutes ?? 60) !== 'ended')
-  const past = classes.filter((c) => getClassStatus(c.class_date, c.duration_minutes ?? 60) === 'ended')
+  const upcoming = classes.filter(c => getClassStatus(c.class_date, c.duration_minutes ?? 60) !== 'ended')
+  const past = classes.filter(c => getClassStatus(c.class_date, c.duration_minutes ?? 60) === 'ended')
 
   const ClassCard = ({ c }: { c: Class }) => {
     const status = getClassStatus(c.class_date, c.duration_minutes ?? 60)
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="border-l-4 border-[#6C63FF] pl-3 flex-1">
-          <p className="font-medium text-gray-800">{c.topic}</p>
-          <p className="text-sm text-muted-foreground">{colomboFormat(c.class_date, 'PPp')} · {formatDuration(c.duration_minutes ?? 60)}</p>
-          {c.teacher_note && <p className="text-xs text-muted-foreground mt-1 italic">{c.teacher_note}</p>}
+      <div className={`bg-white rounded-2xl border overflow-hidden transition-all duration-200 ${status === 'live' ? 'border-red-200 shadow-md shadow-red-100' : 'border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}>
+        {status === 'live' && <div className="h-1 bg-gradient-to-r from-red-400 to-rose-400" />}
+        {status === 'upcoming' && <div className="h-1 bg-gradient-to-r from-[#6C63FF] to-indigo-400" />}
+        {status === 'ended' && <div className="h-1 bg-gray-200" />}
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-gray-800 truncate">{c.topic}</h3>
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <CalendarDays className="w-3 h-3" />{colomboFormat(c.class_date, 'PPp')}
+                </span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="w-3 h-3" />{formatDuration(c.duration_minutes ?? 60)}
+                </span>
+              </div>
+              {c.teacher_note && <p className="text-xs text-muted-foreground mt-1.5 italic bg-gray-50 rounded-lg px-2.5 py-1.5">{c.teacher_note}</p>}
+            </div>
+            {status === 'ended' && (
+              <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full shrink-0">Ended</span>
+            )}
+            {status === 'live' && (
+              <span className="flex items-center gap-1 text-xs font-bold text-red-500 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />LIVE
+              </span>
+            )}
+          </div>
+
           {status === 'upcoming' && (
-            <div className="mt-3 mb-1">
+            <div className="mt-3">
               <CountdownTimer targetDate={c.class_date} />
             </div>
           )}
-          {status === 'live' && (
-            <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-red-600">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              Class is Live Now!
-            </span>
+          {status === 'live' && c.zoom_link && (
+            <Button size="sm" onClick={() => handleJoin(c.id, c.zoom_link!)} className="mt-3 w-full rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold">
+              🔴 Join Class Now
+            </Button>
+          )}
+          {status === 'upcoming' && !c.zoom_link && (
+            <p className="mt-2 text-xs text-gray-400 italic">Join link not added yet</p>
           )}
         </div>
-        {status === 'ended' && (
-          <div className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-bold border border-gray-200 self-start sm:self-center">
-            Ended
-          </div>
-        )}
-        {status === 'upcoming' && !c.zoom_link && (
-          <div className="px-3 py-1 bg-gray-50 text-gray-400 rounded-full text-xs border self-start sm:self-center">
-            No link yet
-          </div>
-        )}
-        {status === 'live' && c.zoom_link && (
-          <Button
-            size="sm"
-            onClick={() => handleJoin(c.id, c.zoom_link!)}
-            className="rounded-pill bg-red-500 hover:bg-red-600 text-white shrink-0 self-start sm:self-center animate-pulse"
-          >
-            🔴 Join Now
-          </Button>
-        )}
       </div>
     )
   }
 
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 mb-4">My Classes</h1>
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold text-gray-800">My Classes</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">{classes.length} class{classes.length !== 1 ? 'es' : ''} assigned</p>
+      </div>
+
       {loading ? (
-        <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
+        <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
       ) : (
         <Tabs defaultValue="upcoming">
-          <TabsList className="mb-4">
-            <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
-            <TabsTrigger value="past">Past ({past.length})</TabsTrigger>
+          <TabsList className="mb-4 bg-white border border-gray-100 shadow-sm rounded-xl p-1 w-full">
+            <TabsTrigger value="upcoming" className="flex-1 rounded-lg text-sm">Upcoming ({upcoming.length})</TabsTrigger>
+            <TabsTrigger value="past" className="flex-1 rounded-lg text-sm">Past ({past.length})</TabsTrigger>
           </TabsList>
           <TabsContent value="upcoming">
             {upcoming.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">📅</p><p>No upcoming classes</p></div>
+              <div className="text-center py-16"><p className="text-4xl mb-2">📅</p><p className="text-muted-foreground">No upcoming classes</p></div>
             ) : (
-              <div className="space-y-3">{upcoming.map((c) => <ClassCard key={c.id} c={c} />)}</div>
+              <div className="space-y-3">{upcoming.map(c => <ClassCard key={c.id} c={c} />)}</div>
             )}
           </TabsContent>
           <TabsContent value="past">
             {past.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground"><p className="text-4xl mb-2">🗓️</p><p>No past classes</p></div>
+              <div className="text-center py-16"><p className="text-4xl mb-2">🗓️</p><p className="text-muted-foreground">No past classes</p></div>
             ) : (
-              <div className="space-y-3 opacity-70">{past.map((c) => <ClassCard key={c.id} c={c} />)}</div>
+              <div className="space-y-3 opacity-75">{past.map(c => <ClassCard key={c.id} c={c} />)}</div>
             )}
           </TabsContent>
         </Tabs>

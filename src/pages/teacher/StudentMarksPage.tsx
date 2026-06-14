@@ -10,7 +10,7 @@ import { getMarkStyle, pct } from '@/lib/markStyle'
 import { colomboFormat } from '@/lib/dates'
 import { useConfetti } from '@/hooks/useConfetti'
 import { toast } from 'sonner'
-import { Pencil, Trash2, Check, X } from 'lucide-react'
+import { Pencil, Trash2, Check, X, FileText } from 'lucide-react'
 import type { Mark } from '@/types'
 
 export default function StudentMarksPage() {
@@ -184,6 +184,11 @@ export default function StudentMarksPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-800 truncate">{m.title}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{colomboFormat(m.created_at, 'PPp')}</p>
+                        {m.file_url && (
+                          <a href={m.file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-[#6C63FF] mt-1 hover:underline">
+                            <FileText className="w-3.5 h-3.5" /> View marked PDF
+                          </a>
+                        )}
                         {/* Progress bar */}
                         <div className="mt-2 h-2 rounded-full bg-gray-100 overflow-hidden">
                           <div className={`h-full rounded-full ${style.bar} transition-all duration-700`} style={{ width: `${percent}%` }} />
@@ -195,7 +200,7 @@ export default function StudentMarksPage() {
                           <span className="text-sm text-muted-foreground">/{m.total}</span>
                         </div>
                         <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${style.badge}`}>
-                          {style.emoji} {percent}% · {style.label}
+                          {style.label} · {percent}%
                         </span>
                         <div className="flex gap-1 mt-1">
                           <button onClick={() => startEdit(m)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors">
