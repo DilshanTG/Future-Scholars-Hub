@@ -4,7 +4,8 @@ import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useMarkStore } from '@/store/markStore'
-import { saveSession } from '@/lib/markPersistence'
+import { saveSession, clearSession } from '@/lib/markPersistence'
+import { exportWorksheet } from '@/lib/exportWorksheet'
 import PageUploadDropzone from '@/components/teacher/mark/PageUploadDropzone'
 import PageReorderGrid from '@/components/teacher/mark/PageReorderGrid'
 import MarkingBoard from '@/components/teacher/mark/MarkingBoard'
@@ -16,6 +17,7 @@ export default function MarkWorksheetPage() {
   const { pages, addFiles, reorderPages, rotatePage, removePage, setActivePage, initSession, startFresh, studentId } = useMarkStore()
   const [step, setStep] = useState<Step>('pages')
   const [resumePrompt, setResumePrompt] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -35,6 +37,23 @@ export default function MarkWorksheetPage() {
     toast.promise(addFiles(files), { loading: 'Processing files…', success: 'Pages added', error: 'Some files could not be read' })
   }
 
+  const handleGenerate = async () => {
+    if (!id || pages.length === 0) return
+    setGenerating(true)
+    try {
+      const title = `Marked Worksheet ${new Date().toLocaleDateString()}`
+      const { skipped } = await exportWorksheet(id, pages, title)
+      if (skipped.length) toast.warning(`${skipped.length} page(s) could not be rendered and were skipped`)
+      await clearSession(id)
+      useMarkStore.getState().endSession()
+      toast.success('PDF generated, uploaded, and downloaded')
+    } catch (e) {
+      toast.error('Upload failed — your work is saved, please retry: ' + (e as Error).message)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -42,6 +61,14 @@ export default function MarkWorksheetPage() {
           <Link to={`/teacher/students/${id}`}><ArrowLeft className="h-4 w-4" /> Back</Link>
         </Button>
         <h1 className="text-lg font-semibold">Mark Worksheet</h1>
+        <Button
+          size="sm"
+          className="ml-auto rounded-pill bg-[#6C63FF] hover:bg-[#5a52d5]"
+          disabled={pages.length === 0 || generating}
+          onClick={handleGenerate}
+        >
+          {generating ? 'Generating…' : 'Generate PDF'}
+        </Button>
       </div>
 
       {resumePrompt && (
